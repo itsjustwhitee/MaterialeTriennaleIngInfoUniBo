@@ -1,0 +1,13 @@
+[Unit]
+Description=Backup e provisioning automatico
+After=network.target
+
+[Service]
+ExecStart=/home/johnd/ansible_run_and_backup.sh
+Restart=always
+User=johnd
+WorkingDirectory=/home/johnd
+
+[Install]
+WantedBy=multi-user.target
+

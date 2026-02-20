@@ -1,0 +1,977 @@
+🟡 DEVICE FILES UTILI 🟡
+- /dev/zero	--> produce uno stream infinito di zeri (binari)
+- /dev/null	--> ogni read restituisce EOF, ogni write viene scartata
+- /dev/random	--> produce byte casuali (realmente), ma BLOCCANTE se non sufficienti a disposizione
+- /dev/urandom	--> produce stream pseudo illimitato
+
+
+🔵 VARIABILI UTILI 🔵
+D'AMBIENTE
+- PATH 		--> contiene i percorsi in cui la shell cerca i comandi nel file system. 
+		    	Struttura tipo PATH=/PERCORSO_1:/PERCORSO_2:/PERCORSO_3. I percorsi devono (best practice) essere assoluti e separati da ':'.
+- HOME		--> Home directory dell'utente
+– LC_vari	--> scelta dei vari aspetti della localizzazione
+					• man locale.7, anche locale.1 e locale.5
+
+SETTATE DA BASH
+– BASHPID 	--> PID della shell corrente
+– $ 		--> PID della shell “capostipite”
+– PPID 		--> PID del parent process della shell “capostipite”
+– HOSTNAME 	--> nome dell’host
+– RANDOM 	--> un numero casuale tra 0 e 32767
+– UID 		--> id utente che esegue la shell
+
+POSIZIONALI
+- $0		--> Nome dello script o del comando invocato
+- $1, $2, …	--> Argomenti posizionali passati allo script o alla funzione
+- $#		--> Numero totale di argomenti posizionali
+- $@		--> Tutti gli argomenti posizionali, come array, mantenendo le virgolette. Espansione di "$@": "arg1" "arg2" "arg3" ...
+- $*		--> Tutti gli argomenti posizionali, come stringa unica. Espansione di "$*": "arg1 arg2 arg3" (tutto in una stringa)
+- $?		--> Exit status dell’ultimo comando eseguito (0 = successo)
+- $$		--> PID (process ID) della shell corrente
+- $!		--> PID dell’ultimo comando eseguito in background
+- $-		--> Opzioni attive della shell (set) come stringa (es: himBH)
+- $_		-->	Ultimo argomento dell’ultimo comando eseguito oppure valore dell’ultima espansione
+- $IFS		--> Internal Field Separator – default: spazio, tab, newline (usato per split)
+
+
+
+🟠 MECCANISMI UTILI 🟠
+- PROCESS SUBSTITUTION
+	Permette di usare l'output di un comando come se fosse un file (sarà una named pipe). Molto utile, più veloce e meno macchinoso nel caso di comandi che necessitano di input da file e 
+	tale input deve essere generato da un comando (si evitano file temporanei).
+	--> <(COMANDO) crea un file leggibile che contiene l'output di COMANDO. COMANDO è lanciato concorrentemente al comando verso cui si fa process substituition
+	--> >(COMANDO) crea un file scrivibile e invia il contenuto a COMANDO.
+	Queste espressioni vengono espanse in nomi di file speciali.
+	
+- COMMAND SUBSTITUITION
+	Permette di utilizzare direttamente un processo per generare parametri da collocare sulla command line per un altro comando. 
+	Prevede due sintassi:
+	--> `COMANDO` <-- Obsoleta
+	--> $(COMANDO) <-- Preferita
+	Le due forme sono equivalenti (a meno di dettagli di alcuni caratteri speciali). COMANDO viene eseguito in una subshell ed il suo output viene sostituito al posto del token.
+
+- BRACE EXPANSION
+	meccanismo di espansione per generare sequenze di stringhe secondo un pattern con la stessa sintassi della pathname expansion, ma le stringhe sono generate indipendentemente dal fatto che esistano
+	o meno file che rispettano il pattern.
+	Sintassi:
+	--> [PRE]{EL1,EL2,EL3}[POST]  <-- esempio a{b,c,d}e verrà espnaso in abe ace ade
+	--> [PRE]{START...END[...INCR]}[POST] <-- esempio file{9..13..2}.c verrà espanso in file9.c file11.c file13.c. 
+											START può essere zero-padding (tipo 009), esempio doc{009..11} → doc009 doc010 doc011
+											Se si usano caratteri per START e END si ha un "prodotto cartesiano", ad esempio {a..c}{1,3} → a1 a3 b1 b3 c1 c3
+											Nota: INCR si può usare anche con le lettere (segue ordine alfabetico)
+	Più brace expression si possono scrivere innestate (nesting).
+
+- VALORI DEFAULT
+	Utile per assegnare valori di default in un assegnamento.
+	--> ${VAR:-"default"}	<-- usa la stringa "default" se la variabile VAR è null o not set (non altera VAR).
+	--> ${VAR:=default}		<-- usa default se VAR è null o not set e poi in ogni caso espansa, assegna a VAR
+	--> ${VAR:?"default"}	<-- stampa su stderr "default" ed esce se VAR null o not set.
+								Nota: omettendo il “:”, la stringa vuota viene considerata valida ed il valore di default è usato solo se la variabile fornita è not set
+
+- MANIPOLAZIONE VARIABILI / SEARCH & REPLACE
+	--> ${#name}				<-- Lunghezza della stringa
+	--> ${name#pattern}			<-- Rimuove la parte più breve all'inizio che corrisponde a pattern
+	--> ${name##pattern}		<-- Rimuove la parte più lunga all'inizio che corrisponde a pattern
+	--> ${name%pattern}			<-- Rimuove la parte più breve alla fine che corrisponde a pattern
+	--> ${name%%pattern}		<-- Rimuove la parte più lunga alla fine che corrisponde a pattern
+	--> ${name/pattern/string}	<-- Sostituisce la prima occorrenza di pattern con string
+	--> ${name//pattern/string}	<-- Sostituisce tutte le occorrenze di pattern con string
+	Altri usi in man bash.1
+
+- ARITHMETIC EVALUATION
+	(( )) si comporta come "" nel proteggere gli elementi dell'espressione. 
+	Riconosce le variabili per nome:
+		• anche se non sono dichiarate intere
+		• senza bisogno dell’espansione bash (quindi senza prefisso $)
+			– attenzione: l’espansione è ammessa ma in tal caso non vale quanto segue:
+		• interpretandole a valore zero se non definite
+	Il toke $(( )) viene espanso col risultato dell'espressione.
+	Operatori:
+		--> id++ id-- (post-incremento/decremento)
+		--> ++id --id (pre-incremento/decremento)
+		--> + - * / somma sottrazione prodotto divisione
+		--> ** % elevamento a potenza, modulo   (Nota: ** è supportato solo in Bash, non in tutte le shell POSIX)
+		--> ! ~ & | ^ NOT NOT AND OR XOR bit-a-bit
+		--> << >> shift binario a sinistra / destra
+		--> = *= /= %= += -= <<= >>= &= ^= |= assegnamento
+		--> <= >= < > == != confronto
+		--> && || AND / OR logico
+		--> expr1?expr2:expr3 (solo in contesti aritmetici Bash, non standard in tutte le shell) restituisce il risultato di expr2 o expr3 rispettivamente se expr1 è true o false
+	I numeri possono essere espressi in qualsiasi base tra 2 e 64:
+		– default 10, prefisso 0 → ottale, prefisso 0x → esadecimale
+		– prefisso B# → base B
+			• cifre utilizzabili: 0..9a..zA..Z@_
+			• per B<=36, a..z e A..Z sono intercambiabili
+	
+- FUNZIONI
+	Le funzioni sono sequenze di comandi con un nome
+	--> function NOME() { SEQUENZA ; }
+	Possono ricevere parametri
+		– utilizzabili come i parametri posizionali dello script $1, $2, ...
+			• che divengono inaccessibili
+			• solo $0 resta impostato al nome script
+		– il nome della funzione viene posto in $FUNCNAME
+
+- ARRAY
+	Si dichiarano con declare -a ARRAY 
+	Accesso:
+	--> "${arr[@]}"	<--	Tutti gli elementi, uno per uno (rispetta spazi), esempio "uno" "due" "tre con spazi"
+	--> "${arr[*]}"	<--	Tutti gli elementi, come un’unica stringa separata da $IFS, esempio "uno due tre con spazi"
+	--> ${arr[@]}	<--	Tutti gli elementi, word splitting attivo, esempio 'uno' 'due' 'tre' 'con' 'spazi' (parole divise, le virgolette sono a scopo illustrativo)
+	--> ${arr[*]}	<--	Idem, ma trattati come un’unica parola, esempio 'uno due tre con spazi' (unica parola, le virgolette sono a scopo illustrativo)
+	--> ${#arr[@]}	<--	Numero di elementi, esempio con l'array di sopra sarebbe 3
+	--> ${#arr[i]}	<--	Lunghezza dell'elemento i, esempio con i=3 dell'esempio sopra sarebbe 13
+	--> ${!arr[@]}	<--	Lista degli indici, esempio 1 2 3
+	Si possono definire anche array associativi con declare -A ARRAY, quindi array con stringhe come chiavi (non indici numerici). Funzionano come sopra.
+	Tip per usare nomi a tempo di esecuzione: eval
+
+- CRONTAB (FILE)
+	Struttura di una riga di un file crontab:
+	MINUTO ORA G.MESE MESE G.SETTIMANA <COMANDO>
+	--> COMANDO é eseguito quando l'ora corrente corrisponde a tutti i selkettori di una riga (campi in AND logico)
+		Eccezione: se sono specificati sia giorni della settimana che giorni del mese (settati quindi non *), i due sono considerati in OR (esempio: G.MESE=1,12 e G.SETTIMANA=2 => ogni giorno 1 e 12 del mese + ogni martedí)
+		I campi possono contenerre:
+		- range: NUMA-NUMB oppure *		--> range di valori, * = tutti
+		- liste: NUMA,NUMB[,...] 		--> elenco di numeri
+		- step: RANGE/NUM 				--> dimensione del "passo" (esempio ORA=6-12/3 => ogni 3 ore tra le 6 e le 12, quindi 6 9 12) 
+	
+🟣 ESPANSIONE 🟣
+	1. Brace expansion ({a,b})
+	2. Tilde expansion
+	3. Espansione di parametri e variabili ($VAR, ${VAR}, $((...)), $(...))
+	4. Espansione di command substitution
+	5. Arithmetic expansion ($((...)))
+	6. Espansione di process substitution (<(...), >(...))
+	7. Rimozione quoting (' ' e " ", dopo che le espansioni sono avvenute)
+	8. Espansione di word splitting (se non protetto da virgolette, l'output è diviso in parole da spazi, tab, newline)
+	9. Pathname expansion (*, ? e [])
+	10. Assegnazione di comandi (variabili in linea prima del comando sono valide solo per quel comando)
+	11. Espansione ridirezione (>, <, >>, 2>, ...) e i file vengono aperti
+	12. esecuzione del comando
+
+	1. Tokenizzazione: la riga è divisa in token, usando come separatori un elenco di metacaratteri:
+		SPACE TAB NEWLINE ; ( ) < > | &
+		I token possono essere:
+			- stringhe
+			- parole chiave
+			- caratteri di ridirezione
+			- carattere ':'
+		Da qui in poi (2-10) tutti i passi sono saltati per le parti di riga racchiuse tra apici singoli ''.
+	2. primo token = alias?
+		La shell cerca il primo token nella lista degli alias. Se lo trova lo espande e riparte con i processing da 1.
+		Nota: questo consente alias ricorsivi, ma questo non permette di espandere un alias due volte.
+		Non si esegue per le parti racchiuse da apicidoppi "".
+	3. primo token = keyword?: se il primo token è una parola chiave che dà inizio a un comando composto (i.e. if, while, function (, {) la shell predispone l'ambiente per il comando composto e ne va a leggere il primo token.
+		Non si esegue per le parti racchiuse da apicidoppi "".
+	4. Brace expansion
+		Non si esegue per le parti racchiuse da apicidoppi "".
+	5. Tilde expansion: se ci sono toke nella forma ~username vengono sostituite con la home directory di username (se username è vuoto si usa utente corrente).
+		Non si esegue per le parti racchiuse da apicidoppi "".
+	6. Parameter expansion: il carattere '$' può marcare l'inizio di diverse espansioni (parameter expansion, command substitution, arithmetic expansion), la PE è la più semplice
+	7. Command substitution: il token $(comando) ha questo effetto:
+			– viene creata una subshell
+			– vi viene eseguito comando
+			– sdtout di comando viene posto sulla riga di comando al posto del token originale, a parte eventuali righe vuote alla fine
+	8. Arithmetic expansion: il token ((expr)) causa la valutazione di expr, un’espressione aritmetica. Se preceduto da $, il risultato viene posto sulla riga di comando, altrimenti l’unico effetto è eventualmente sulle variabili
+		expr viene trattata come se fosse racchiusa tra doppi apici (quindi subisce solo i passi 6 e 7).
+	9. Process substitution: il token <(comando) o >(comando) ha questo effetto:
+			– comando viene eseguito in modo concorrente e asincrono rispetto al resto della riga
+			– il suo input o output appare come un "nome di file" tra gli argomenti del comando
+	10. Word splitting: I risultati dei passi 6..9 sono esaminati e separati in parole indipendenti.
+		– Separatore = qualsiasi carattere presente nella variabile IFS (default: spazio, tab, newline).
+		Non eseguito sulle parti di riga racchiuse tra doppi apici "".
+	11. Pathname expansion (espansione dei nomi di percorso)
+		Ogni parola viene esaminata e, se contiene uno dei caratteri:
+			- *
+			- ?
+			- [
+		viene considerata un pattern e sostituita con tutti i nomi di file che corrispondono nel filesystem.
+		Non eseguito sulle parti di riga racchiuse tra doppi apici "".
+	12. Quote removal ed esecuzione del comando
+		Vengono rimosse tutte le occorrenze di caratteri di quoting effettivamente usate:
+			- non protette da altri quoting
+			- non generate dai passi 6..9
+		Vengono impostati gli stream in caso di redirezione.
+		Il comando viene cercato in quest’ordine:
+			- funzioni
+			- builtin
+			- eseguibili in $PATH
+
+Quoting: 
+\ (backslash)		--> Protegge il carattere immediatamente successivo, impedendone l'interpretazione speciale.
+' (apice singolo)	--> Tutti i caratteri racchiusi tra apici singoli vengono trattati letteralmente, senza alcuna espansione.
+" (apice doppio)	--> I caratteri racchiusi tra virgolette doppie sono protetti dall'espansione, tranne per $, backtick (`), \ e alcuni altri casi particolari.
+
+I simboli di quoting, essendo caratteri speciali, devono essere protetti dall'espansione se si desidera utilizzarli con il loro valore letterale. Esempi:
+	- \"  : il backslash protegge le virgolette doppie → sulla riga resta "
+	- '"' : gli apici singoli proteggono le virgolette doppie
+	- \\  : il primo backslash protegge il secondo → sulla riga resta \
+	
+	
+🟤 VARIE 🟤
+- $ COMANDO > FILE 2>&1	--> la shell applica da sinistra a destra le ridirezioni, quindi prima stdout è ridiretto su FILE e poi stderr su stdout (quindi FILE)
+- $ COMANDO <<MARCATORE	--> Here documents: invia un testo (più righe) a COMANDO e si interrompe quando arriva a MARCATORE (se MARCATORE contiene spazi chiuderlo tra ''). Se si aggiunge - prima di MARCATORE, vengono ignorate tabulazioni (non spazi).
+- $ COMANDO <<< "testo da mandare a stdin di COMANDO" --> Here string: si può mandare a stdin del comando una singola riga senza MARCATORE
+- $ exec NUM>DEST 	--> Ridirezione definitiva del canale NUM su DEST (esempio $ exec 2>/dev/null). Per ripristinare $ exec NUM>&-
+- $ exec NUM< FILE_IN 	--> creazione di nuovo fd (NUM) che legge da FILE_IN. Per leggere <&NUM e per chiudere NUM>&-
+- $ exec NUM> FILE_OUT	--> creazione di nuovo fd (NUM) per output su FILE_OUT. Per scrivere >&NUM e per chiudere NUM>&-
+- $ exec NUM<> FILE_IO	--> creazopme di nuovo fd (NUM) per output e input su/da FILE_IO. Per chiudere NUM>&-
+- ( COMANDO1 ; COMANDO2 ; ...) --> forza la creazione di una subshell in cui eseguire i COMANDO. I/O sono collegati alla shell padre (=> si può usare anche per pipe)
+- segnali nel terminale:
+	- SIGSTP	--> CTRL + Z
+	- SIGINT	--> CTRL + C
+	- SIGQUIT	--> CTRL + \
+- COMANDO & --> per eseguire COMANDO in backgroun, è restituito un job_id che identifica il processo nella shell. Il pid del processo è memorizzato in $!
+
+
+🟢 COMANI UTILI (breve excursus, fare riferimento al man) 🟢
+
+$ man COMANDO
+--> per ottenere il manuale di COMANDO. Se COMANDO è builtin allora non esiste man page dedicata, tipicamente sono in $ man bash.1
+
+$ help COMANDO_BUILTIN
+--> per ottenere info su COMANDO_BUILTIN (non ha man).
+
+$ whoami 
+--> indica il proprio username
+
+$ id
+--> dà informazioni sull'identità e sul gruppo di appartenenza
+
+$ who
+--> indica chi e' attualmente collegato alla macchina
+
+$ type -a COMANDO
+--> restituisce tipo di comando (builtin, command, alias) e i path in cui si trova (-a)
+
+$ \COMANDO
+--> usa il comando builtin, se COMANDO è un alias. Se COMANDO è una funzione, esegue la funzione.
+
+$ builtin COMANDO
+--> usa il comando builtin invece di alias o funzione se COMANDO è stato ridefinito (override).
+
+$ commando COMANDO
+--> usa il comando esterno (non per builtin) invece di alias o funzione se COMANDO è stato ridefinito, invocando la versione originale.
+
+$ alias ALIAS_COMANDO='NUOVO_COMANDO'
+--> per assegnare all'alias ALIAS_COMANDO l'esecuzione di NUOVO_COMANDO.
+
+$ unalias ALIAS_COMANDO
+--> per rimuovere l'alias.
+
+$ wich COMANDO
+--> per riconoscere quale comando si sta usando (utile nel caso in cui siano presenti più omonimi)
+
+$ history
+--> per ottenere l'elenco dei comandi passati
+
+$ script
+--> permette di catturare in un file una sessione di lavoro (in pratica i comandi lanciati ed i corrispondenti output). Per terminare la sessione CTRL+d oppure $ exit
+
+$ cat [OPZIONI] FILE1 [FILE2 FILE3 ...]
+--> filtro. Mostra su stdout il contenuto del file (se non vengono passati argomenti mostra quanto scritto sul prompt)
+
+$ tac [OPZIONI] FILE1 [FILE2 FILE3 ...]
+--> filtro. Come cat (v. sopra) ma righe in ordine inverso (dall'ultima alla prima).
+
+$ less [OPZIONI] FILE1 [FILE2 ...]
+--> Mostra il contenuto del file per videate succssive navigabili. 
+    Comandi utili (non sono opzioni):
+	– h 		--> help (dei comandi disponibili)
+	– frecce/pag–su/giu movimento
+	– F 		--> Follow; scorre fino al termine dell’input e resta in attesa che compaiano nuove righe da mostrare
+	– <N>g 		--> si porta alla riga numero <N> (default: 1)
+	– G 		--> si porta al termine del file
+	– /<pattern> 	--> cerca la riga successiva al cursore contenente <pattern>
+	– ?<pattern> 	--> cerca la riga precedente il cursore contenente <pattern>
+	– n 		--> ripete la ricerca fatta in precedenza
+	– N 		--> ripete la ricerca fatta in precedenza, ma nel verso opposto
+	– q 		--> esce da less
+
+$ rev [OPZIONI]
+--> filtro. Permette di invertire l'ordine dei caratteri di ogni linea (conservando l'ordine delle righe) dello stream in input verso lo stream di output.
+
+$ head [OPZIONI] [FILE1 ...]
+--> filtro. Permette di estrarre la parte iniziale di un file. Default prime 10 righe.
+    Opzioni utili:
+	-c [-]NUM 	--> produce i primi NUM caratteri. Con -NUM produce tutto il testo eccetto gli ultimi NUM caratteri.
+	-n [-]NUM 	--> produce le prime NUM righe. Con -NUM produce tutto il testo eccetto le ultime NUM righe.
+
+$ tail [OPZIONI] [FILE1 ...]
+--> filtro. Permette di estrarre la parte finale di un file. Deafault ultime 10 righe.
+    Opzioni utili:
+    	-c [+]NUM 	--> produce gli ultimi NUM caratteri. Con +NUM produce tutto il testo eccetto i (a partire dai) primi NUM caratteri.
+    	-n [+]NUM 	--> produce le ultime NUM righe. Con +NUM produce tutto il file eccetto le (a partire dalle) prime NUM righe.
+    	-f 		--> dopo aver mostrato le ultime righe di un file, mantiene il file aprto e si visualizzano in tempo reale eventuali nuove righe appese da altri processi (ignora quindi EOF).
+    			    Si possono aggiungere (a -f):
+    			    	--pid=PID 	--> per far terminare il tail quando termina il processo con pid PID.
+    			    	--retry		--> per far riprovare ad aprire il file finchè non si riesce (utile se è necessario aspettare che un altro processo generi il file).
+
+$ cut [OPZIONI] [FILE1 ...]
+--> filtro. Permette di tagliare parti di righe.
+    Opzioni utili:
+    	-c ELENCO	--> permette di returnare uno o più caratteri. 
+    				     ELENCO può assumere diverse forme:
+    					NUMA 		--> carattere in posizione NUMA.
+    					NUMA-NUMB 	--> caratteri in posizione da NUMA a NUMB (compresi). 
+    				    	NUMA-		--> caratteri dalla posizione NUMA (compreso) in poi.
+    				    	-NUMB		--> caratteri fino alla posizione NUMB (compreso).
+	-d CHAR -f ELENCO [-s]	--> permette di spezzare ogni riga in campi delimitati dal carattere CHAR e selezionare solo quelli specificati in ELENCO (v. opzione sopra -c). 
+				    Se specificato -s evita che vengano prodotte in output righe che non contengolo il delimitatore CHAR.
+				    
+$ sort [OPZIONI] [FILE1 ...]
+--> filtro. Permette di ordinare in modo lessicale. L'ordine segue il valore dei byte che codificano i caratteri se LC_ALL=C, altrimenti l'ordine del locale.
+    Opzioni utili:
+    	–u	--> elimina le entry multiple (equivale a sort | uniq)
+	–r	--> reverse (ordinamento decrescente)
+	–R	--> random (permutazione casuale delle righe)
+	–m	--> merge di file già ordinato
+	–c	--> controlla se il file è già ordinato
+	-b	--> ignora gli spazi a inizio riga
+	-d	--> considera solo i caratteri alfanumerici e gli spazi
+	-f	--> ignora la differenza minuscole / maiuscole
+	-n	--> interpreta le stringhe di numeri per il valore numerico
+	-h	--> interpreta i numeri “leggibili” come 2K, 1G, ecc.
+	-t SEP	--> imposta SEP come separatore tra campi (default: spazi)
+	-k KEY	--> chiave di ordinamento – se usato più volte, ordina per la prima chiave, a parità di questa per la seconda, …
+		    KEY è nella forma (semplificata) F[.C][,F[.C]][OPTS]
+			• F = numero di campo
+			• C = posizione (in caratteri) nel campo
+			• OPTS = una delle opzioni di ordinamento [bgiMhnRrV]
+
+$ uniq [OPZIONI] [FILE1 ...]
+--> filtro. Permette di eliminare i duplicati consecutivi.
+    Opzioni utili:
+    	–c	--> indica anche il numero di righe compattate in una.
+	–d	--> mostra solo le entry non singole.
+	
+$ wc [OPZIONI] [FILE1 ...]
+--> filtro. Conteggia caratteri, righe e/o parole,
+    Opzioni utili:
+    	-c 	--> conta i caratteri.
+	-l 	--> conta le linee.
+	-w 	--> conta le parole (stringhe separate da spazi).
+
+$ grep [OPZIONI] [FILE1 ...]
+--> filtro. Esamina le righe del testo in ingresso. Riproduce in uscita quelle che contengono un pattern corrispondente a una espressione regolare passata come argomento.
+    Regex (solo opzione -E o egrep):
+    	– RE = uno o più rami non vuoti separati da |
+	– ramo = uno o più pezzi concatenati tra loro
+	– pezzo = atomo eventualmente seguito da un moltiplicatore
+	– atomo = uno di:
+		• (RE)
+		• [charset]
+			Esempi
+				[abc] indica UN qualsiasi carattere fra a, b o c.
+				[a-z] indica UN qualsiasi carattere fra a e z compresi.
+				[^dc] indica UN qualsiasi carattere che non sia né d né c.
+			[:NOME_CLASSE:] charset basati su character class, NOME_CLASSE deve appartenere ad un insieme definito (wctype 3):
+				alnum, digit, punct, alpha, graph, space, blank, lower, upper, cntrl, print, xdigit.
+			Un set può essere negato con ! o ^ (tipo [!a] o [^A->])
+		• Atomi speciali:
+			. indica UN qualsiasi carattere.
+			^ indica l'inizio della linea.
+			$ indica la fine della linea.
+		• backslash sequence
+			\< – \> la stringa vuota all’inizio – alla fine di una parola.
+			\b la stringa vuota al confine di una parola.
+			\B la stringa vuota a condizione che non sia al confine di una parola.
+			\w è sinonimo di “una qualsiasi lettera, numero o _”.
+			\W è un sinonimo “un qualsiasi carattere non compreso in \w”.
+		• Singolo carattere
+	   Per atomo:		
+		> Moltiplicatori (vanno postposti all'atomo, tipo [a-zA-Z]{2,} ovvero "sequenza di almeno due lettere maiuscole o minuscole):
+			{n,m} indica da n a m occorrenze dell’atomo che lo precede.
+			? indica zero o una occorrenza dell’atomo che lo precede.
+			* indica zero o più occorrenze dell’atomo che lo precede.
+			+ indica una o più occorrenze dell’atomo che lo precede.
+	Greediness:
+		– Nel caso in cui una RE possa corrispondere a più di una sottostringa di una data stringa, la RE corrisponde a quella che inizia per prima nella stringa.
+		– Se a partire da quel punto, la RE può corrispondere a più di una sottostringa.
+	Opzioni utili:
+		-E 	--> usa le extended RE (come egrep senza parametri).
+		-F 	--> disattiva le RE e usa il parametro come stringa letterale.
+		-w/-x 	--> fa match solo con RE “whole word” o “whole line”.
+		-i 	--> rende l’espressione insensibile a maiuscole e minuscole.
+		-r 	--> cerca ricorsivamente in tutti i file di una cartella.
+		-f 	--> FILE prende le RE da un FILE invece che come parametro.
+		-o 	--> restituisce solo le sottostringhe che corrispondono alla RE invece della riga che le contiene, separatamente una per riga di output.
+		-v 	--> restituisce le linee che non contengono l’espressione.
+		-l 	--> utile passando a grep più file su cui cercare: restituisce solo i nomi dei file in cui l’espressione è stata trovata.
+		-n 	--> restituisce anche il numero della riga contenente l’espressione.
+		-c 	--> restituisce solo il conteggio delle righe che contengono la RE.
+		--line-buffered --> disattiva il buffering.
+		
+$ sed -e 'COMANDO'
+$ sed -f 'SCRIPT'
+--> sed 's/VECCHIO_PATTERN/NUOVO_VALORE/[modificatori]'
+	– sostituisce in ogni riga il NUOVO_VALORE alla parte di testo.
+	coincidente con VECCHIO_PATTERN
+	– con sed -E i pattern sono circa quelli di egrep.
+   Modificatori del comando di sostituzione
+	i 	--> case insensitive.
+	g	--> global (sostituisce tutte le occorrenze sulla riga).
+	NUM	--> sostituisce solo l’occorrenza NUM-esima.
+   Opzioni sulla riga di comando
+	-i[SUFFIX]	--> edita il file dato [backup con estensione SUFFIX se fornita].
+	-u 		--> unbuffered.
+
+$ tr [OPZIONI] 'TARGET' ['TRADUZIONE']
+--> filtro. Per sostituire più rapidamente singoli caratteri (senza regex).
+    Opzioni utili:
+    -d	--> senza specificare TRADUZIONE, elimina i match con TARGET.
+	-c	--> usa il complementare di TARGET
+    
+    Esempio:
+    $ tr 'A-Z' 'a-z' 	--> trasforma maiscole in minuscole.
+    $ tr -d '\r' 	--> elimina i carriage return.
+	$ tr -cd 'a'		--> rimuove tutte le occorrenze di qualsiasi carattere non sia 'a'
+   
+$ xargs [OPZIONI] COMANDO
+--> filtro. Prende su stdin gli argomenti che passa a COMANDO. Si aspetta su stdin un elenco di stringhe. Di default xargs raggruppa le invocazioni per ridurre il carico (quindi è come 
+    eseguire COMANDO una volta con tutti assieme gli argomenti passati).
+    Opzioni utili:
+	-0	--> (zero) utilizza null, non lo spazio, come terminatore di argomento.
+	-L MAX	--> usa al più MAX linee di input per ogni invocazione.
+	-n NUM	--> quanti argomenti alla volta passare al comando (di default una riga è considerata un argomento da xargs, a prescindere). Se ci sono più argomenti in input, xargs.
+		    esegue più volte il comando, ognuna con al massimo NUM argomenti.
+	-p	--> chiede interattivamente conferma del lancio di ogni comando.
+
+$ tee [OPZIONI] FILE
+--> duplica l ostream di output: una copia dello stdin a FILE ed una su stdout.
+    Opzioni utili:
+    	-a	--> il contenuto è aggiunto in append a FILE.
+    	
+$ shuf [OPZIONI] [FILE]
+--> genera permutaioni random delle righe di stdin o di un file (analogo a sort -r), ma il comportamento può essere alterato con le opzioni.
+    Opzioni utili:
+    	-e ARGOMENTI	--> mescola l'ordine degli argomenti passati e lo restituisce in output.
+    	-i NUMA-NUMB	--> mescola i numeri contenuti nel range (estremi inclusi).
+    	-r		--> continua all'inifito ad estrarre casualmente gli argomenti.
+
+$ diff FILE_SX FILE_DX
+--> mostra le differenze tra due file.
+
+$ paste FILE1 FILE2 [FILE3 ...] 
+--> unisce “orizzontalmente” le righe di posizione omologa in vari file
+
+$ join FILE1 FILE2
+--> funziona in maniera analoga a paste, ma sfrutta la chiave (come il join sql): unisce le righe che hanno la stessa chiave.
+
+$ trap [OPZIONI] [[HANDLER] SIGNAL ...]
+--> permette di definire un'azione personalizzata da eseguire alla ricezione di un segnale. 
+    Oltre ai segnali standard esistono pseudo-segnali per il debug degli script:
+    	– DEBUG è lanciato dalla shell prima di eseguire ogni comando
+	– RETURN è lanciato dalla shell
+		• dopo il rientro da una chiamata a funzione
+		• dopo l'inclusione di un file con source
+	– ERR è lanciato dalla shell ad ogni comando che fallisce
+	– EXIT è lancato dalla shell in uscita (sia causata da exit, fine script, o qualsiasi segnale di terminazione - tranne ovviamente KILL)
+    Nota: i signal handler non sono ereditati dai processi figl.
+    Nota: l'esecuzione di un handler non blocca i segnali dello stesso tipo (la ricezione)
+    Nota: quando bash esegue un comando (quindi ha creato un altro processo per l'esecuzione), il processo bash non è schedulato fino alla terminazione del figlio, pertanto non vengono controllati i segnali di bash.
+    
+$ kill [OPTIONS] PID [...]
+--> permette di inviare segnali ad un processo (o ad un gruppo). Se PID è negativo, identifica l'intero process group
+    Opzioni utili:
+    	-l/-L	--> elenca i segnali supportati
+
+$ sleep TIME
+-->  innesca un timer per far “dormire” il processo. Il parametro TIME può essere fload, di default è interpretato in secondi, ma sono supportati i suffissi m(inutes) h(ours) d(ays)
+   
+$ bg %JOB_ID
+--> invia un segnale CONT che riavvia il processo e contemporaneamente lo mette in background. Utile se si lancia una command line senza &, e si vuole rimediare, si può dare un segnale di STOP con Ctrl+Z
+
+$ wait [%JOB_ID1 ...]
+--> blocca l'esecuzione fino al completamento dei job in background (tutti di default), se vengono passati JOB_ID, attende la terminazione di quegli specifici processi.
+	Se nell'attesa la shell riceve un segnale per cui è definito un handler con trap, wait esce con exit code >128, l'handler viene eseguito e riprende da dopo la wait (si può controllare $? per vedere l'exit code quindi il motivo)
+
+$ fg %JOB_ID
+--> riporta in fg il processo.
+
+$ nohup COMANDO
+--> evita che la shell, alla chiusura, invii il segnale SIGHUP al COMANDO (il che normalmente ne causerebbe la terminazione). In più scollega l'output dal terminale dirigendo l'output verso il file nohup.out.
+	Viene lanciato all'avvio del processo, anche insieme a nice.
+
+$ nice COMANDO
+-->  lancia COMANDO con una niceness diversa da zero (quanto è "gentile" un processo nell'usare la CPU, cioè la sua priorità relativa rispetto agli altri processi durante la pianificazione), modificando la priorità del processo
+	– di default 10
+	– valori negativi (che incrementano la priorità) sono utilizzabili solo da root.
+	Il range è [-20, 19]
+	Viene lanciato all'avvio del processo, anche insieme a nohup.
+
+$ disown [PID]
+--> rimuove completamente un job dalla job table della shell
+	– di default quello lanciato per ultimo
+	– con l’opzione -h implementa anche l’immunità all’hangup
+	
+$ set ARG1 [ARG2] [...] 
+--> permette di settare gli argomenti ($1, $2, ...).
+
+$ shift [NUM]
+--> permette di shiftare "verso sinistra" gli argomenti, $0 escluso. Di default NUM è 1. Gli elementi che "escono" sono persi.
+
+$ declare -a MYVECTOR
+--> dichiarazione (non obbligatoria) di un array
+
+$ read [OPZIONI] VAR1 [VAR2] [...]
+--> legge stringhe da stdin e le assegna alle variabili passate come argomenti.
+		– L’input viene tokenizzato usando IFS (di default qualsiasi spaziatore), v. VARIABILI UTILI
+		– Se ci sono più token che variabili, quelli in eccesso finiscono tutti nell’ultima variabile specificata, come unica stringa, separatori inclusi
+	Opzioni utili:
+		-p PROMPT	--> stampa PROMPT prima di accettare input
+		-u FD		--> legge da FD invece che da stdin
+		-a ARRAY	--> assegna i token a elementi di ARRAY
+	Nota: occhio a quali processi si generano con le pipe, potrebbero esserci problemi di perdita dei risultati. v. slide 25 pp shell scripting
+
+$ test [ARG1] OP ARG2
+$ [ [ARG1] OP ARG2 ]
+--> Opzioni utili (test unitari):
+	su stringhe
+		-z true se la stringa è vuota
+		-n true se string è non vuota
+	su file
+		-e true se file esiste
+		-f true se è un file regolare
+		-d true se è una directory
+		-s true se file non è vuoto
+--> Opzioni utili (test binari):
+	– confronto lessicale tra stringhe
+		= , != , < , >
+	– confronto numerico tra stringhe
+		-eq , -ne  	--> equal, not equal
+		-lt , -le	--> less than , less or equal
+		-gt , -ge	--> greater than, greater or equal
+	– confronto tra file
+		-nt 	--> newer than
+		-ot 	--> older than
+	E' possibile combinare controlli elementari in espressioni complesse:
+		• gli operatori AND, OR, NOT sono rispettivamente -a , -o , !
+		• si possono effettuare raggruppamenti con le parentesi tonde
+			– vanno protette dall’espansione della shell → usare \( \)
+
+[[ [ARG1] OP ARG2 ]]
+--> Versione "aggionrata" di test/[] 
+	- operatori binari == e != fanno match del parametro di sinistra con un pattern espresso dal parametro di destra con la stessa sintassi della pathname expansion ([[ ]] equivale a un quoting, quindi i metacaratteri
+	  non vanno protetti dall’espansione shell)
+	- l’operatore binario =~ fa match del parametro di sinistra con una regular expression specificata dal parametro di destra 
+	E' possibile combinare controlli elementari in espressioni complesse:
+		• gli operatori AND, OR, NOT sono rispettivamente && , || , !
+		• si possono effettuare raggruppamenti con le parentesi tonde
+			– sono automaticamente protette da [[ ]] → usare ( )
+
+$ source COMMAND
+--> usato per eseguire uno script nel contesto di un altro (inclusa la riga di comando interattiva)
+
+$ eval STRING 
+--> permette di processare un file come se fosse uno script, sottoponendolo ai 12 passi di valutazione elencati in precedenza.
+	Questo permette ad uno script di generare altri script ed eseguirli correttamente.
+
+$ select ALTERNATIVE in ALT_LIST
+  do
+	...
+  done
+--> builtin utile per semplificare la selezione tra alternative
+
+$ getops OPTSTRING NAME [ARG]
+--> utile per costruire script che supportino la classica sintassi comando OPZIONI_PRECEDUTE_DAL_TRATTINO ARGOMENTI
+	OPTSTRING definisce i caratteri da riconsocere come opzioni. Se un carattere è seguito da ':', allora è atteso un parametro per quell'opzione
+	NAME è il nome di variabile in cui collocare il parametro corrente ed analizzarlo.
+	v. esempio slide 49 pp shel scripting
+
+$ su -c COMANDO - UTENTE
+--> utile per cambiare l'identità temporanemanete (non in scripting in quanto chiede password).
+
+$ sudo COMANDO
+--> per eseguire comandi con permessi di root. Richiede la configurazione di sudoers (possibilmente con NOPASSWD)
+
+$ time COMANDO 
+--> riposta la durata di esecuzione di COMANDO
+
+$ date [OPT] [FORMAT]
+--> utile per misurare il tempo. 
+		– può essere usato con l’opzione -s per impostare l’orologio del sistema
+		– può essere usato per interrogare l’orologio e per convertire tra formati i timestamp
+	Formati di output
+		– date +FORMAT permette di selezionare cosa e come visualizzare
+		– FORMAT è una stringa in cui vengono interpretate sequenze speciali contrassegnate dal carattere %
+	
+	– uno dei formati più utili per fare calcoli è %s: il numero di secondi dall’epoca di Unix (1/1/70)
+	– volendo più precisione, %s%n (appende i nanosecondi)
+	-d permette di fornire un timestamp da usare al posto del tempo corrente (potendo convertire tra diversi formati)
+
+$ mktemp
+--> crea un file temporaneo, restituendo il nome del file creato. Default /tmp/tmp.XXXXXXXXXX
+	Opzioni utili:
+	-d		--> crea una directory
+	-p DIR	--> crea all’interno di DIR invece che in /tmp
+
+$ basename [OPT] [STRING]
+--> rimuove il path ed eventualmente un suffisso da un nome di file
+
+$ dirname [OPT] [STRING]
+--> rimuove l’ultimo componente del percorso da un nome di file
+		• se il nome non contiene “/”, restituisce “.” (la directory corrente)
+
+$ printf [-v var] format [arguments]
+--> permette di formattare gli argomenti in modo più complesso rispetto a echo
+	– -v var assegna il risultato della formattazione alla variabile invece che produrlo su STDOUT
+	– format è una stringa di formato documentata da printf (1)
+		• più estensioni specifiche:
+			%b attiva l’interpretazione delle sequenze speciali “\” negli argomenti
+			%q aggiunge quoting in modo che il risultato sia utilizzabile su cmdline
+			%(fmt)T produce una stringa data-ora secondo fmt (vedi strftime (3))
+	– arguments sono gli argomenti a cui applicare la stringa di formato
+
+$ watch [OPT]
+--> esegue un comando periodicamente mostrando l’output sul terminale
+	opzioni principali
+		-d evidenzia le differenze apparse dall’ultimo aggiornamento
+			• --differences=permanent tutto ciò che è cambiato dall’avvio
+		-n <intervallo> imposta l’attesa tra un’esecuzione e la successiva
+			• minimo 0.1 secondi
+			• default 2 secondi
+		-p interpreta il valore passato con -n come periodo di aggiornamento
+
+$ systemctl [OPT] [ARGS]
+--> per la gestione dei servizi
+	Andrebbe lanciato da root, ma specificando l'opzione --user si puó agire sul system manager dell'utente che lancia il comando.
+	--> set-default [TARGET]	<-- Per settare il target di default 
+	--> get-default				<-- Per visualizzare il target di default
+	Fare riferfimento al pp "gestione dei servizi" e al man (troppo discorsivo).
+	Per configurzione (file) man man 5 systemd.service.3
+			
+$ at [-V] [-q QUEUE] [-f FILE] [-mldbv] TIME
+--> per pianificare un comando al tempo TIME
+	Time puó essere anche orari human readable come "now" "midnight" "next week", oltre ad operazioni "+ NUM TIMEMISURE", dove NUM é il numero e TIMEMISURE é "minutes", "hours", "days", "weeks", "months", ecc (anche al singolare)
+	Se non specificato un file con -f, i comandi vengono presi da stdin
+	Nota: probabilmente da installare in lab (sudo apt install at - previa cofigurazione proxy)
+
+$ atq [-V] [-q QUEUE] [-v]
+--> oer elencare i comandi in codificano
+
+$ atrm [-V] job [JOB1 ...]
+--> per rimuovere comandi dalla coda 
+
+$ batch [-V] [-q queue] [-f file] [-mv] [TIME]
+--> esecuzione condizionata al carico (quindi come at ma piú lasco).
+	Se non specificato un file con -f, i comandi vengono presi da stdin
+
+$ useradd
+--> per creare nuovi utenti. Solo da root.
+	valori predefiniti per le caratteristiche dell’utente creato sono impostati nel file /etc/login.defs
+	Opzioni principali:
+		-m --> crea la home del utente, usa come template i files dentro /etc/skel
+		-s --> assegna la shell all’utente, le possibili shell sono indicate dentro il file /etc/shells, altrimenti prende il default
+		-U --> crea un gruppo con lo stesso nome dell’utente
+		-K --> con questo parametro è possibile specificare la UMASK=0077
+		-p --> dopo questo parametro è possibile inserire la password utente MA come riportato nella man page è sconsigliato, molto meglio usare passwd separatamente
+		-G posso assegnare l’utente all’atto della creazione ad un gruppo supplementare esempio sudo
+	Le credenziali sono in:
+		– /etc/passwd, world-readable, una riga per utente:
+			prandini:x:500:500:Marco Prandini:/fat/home:/bin/bash
+		– /etc/shadow, accessibile solo a root, linee corrispondenti a passwd
+			prandini:$1$/PBy29Md$kjC1F8dvHxKhnvMTWelnX/:12156:0:99999:7:::
+		Nota: non rimuovere il segnaposto 'x' nel secondo campo di passwd, o il sistema non guarderà il file shadow e non riconoscerà la password
+	L’appartenenza ai gruppi è l’unione dell’informazione presente in /etc/passwd riguardante il gruppo principale di ogni utente e del contenuto dei file
+		– /etc/group, world-readable, una riga per gruppo:
+			sudo:x:27:prandini
+		– /etc/gshadow, accessibile solo a root, linee corrispondenti a group
+			sudo:*::prandini
+
+$ id USER
+--> per ottenere le info sull'identitá dell'utente USER.
+
+$ usermod [ARGS]
+--> permette di modificare tutte le caratteristiche di un utente. Solo da root.
+	-a aggiunge il gruppo agli altri (se esistenti) dell'utente. Usare con -G.
+	-G GROUP1[, GROUPN] lista i gruppi a cui aggiungere gli utenti
+
+$ chsh [ARGS]
+--> permette di modificare la shell di login
+
+$ chfn [ARGS]
+--> permette di modificare il nome reale 
+
+$ passwd [ARGS]
+--> permette di modificare la password.
+	Le password sono nel file shadow /etc/shadow. Ogni riga ha la forma:
+	<name>:<pw>:<date>:PASS_MIN_DAYS:PASS_MAX_DAYS:PASS_WARN_AGE:INACTIVE:EXPIRE:
+	--> PASS_MAX_DAYS	--> massimo numero di giorni di validitá della password. Valore default preso da /etc/login.defs
+	--> PASS_MIN_DAYS	--> minimo numero di giorni necessari prima che un utente possa cambiare la password. Valore default preso da /etc/login.defs
+	--> PASS_WARM_AGE	--> numero di giorni da cui il password change reminder comincia. Valore default preso da /etc/login.defs
+	--> INACTIVE		--> numero di giorni dopo la scadenza della password dopo cui l'account viene disabilitato. Valore default preso da /etc/default/useradd
+	--> EXPIRE			--> sata di scadenza dell'account, nel formato YYYY-MM-DD. Valore default preso da /etc/default/useradd
+
+$ adduser [ARGS]
+--> script in Perl per creazione di un nuovo utente. Non standard. Chiede dettagli interattivamente (non utile in scripting).
+
+$ groupadd [ARGS]
+--> analogo a useradd per i gruppi
+
+$ addgroup [ARGS]
+--> analogo ad adduser per i gruppi
+
+$ gpasswd [ARGS]
+--> modifica password e lista utenti di un gruppo
+
+$ getent [ARGS]
+--> interroga db utenti e gruppi
+
+$ last [ARGS]
+--> elenca login effettuati sul sistema
+
+$ lastlog [ARGS]
+--> mostra la data di ultimo login di ogni utente
+
+$ faillog [ARGS]
+--> mostra i login falliti sul sistema
+
+$ chown [new_owner]:[new_group] <file>
+--> modifica owner e/o group owner del file
+		-R attiva la ricorsione su cartelle
+
+$ chgrp [new_group] <file>
+--> modifica group owner del file, comunque solo tra quelli di cui l’utente è membro.
+		-R attiva la ricorsione su cartelle
+
+$ chmod PERMESSI FILE
+--> assegna permessi ad un file o una directory FILE.
+	PERMESSI puó essere espresso 
+		- con 5 numeri che indicano i 4 gruppi SUID-SGID-sticky, User RWX, Group RWX, Other RWX (formato ottale)
+		- specificando per ogni lettera (u user, g group,  a all) i permessi (w, r, x) da modificare tramite + o - (esempio chmod 'a=r,g-rx,u+rw' file)
+	Nota: nel controllare i permessi il SO parte da user, scende a group e infine ad other fermandosi al primo "match". In particolare puó quindi accadere che i permessi di user siano piú sfavorevoli di quelli di group,
+	il sistema comunque applica quelli di user.
+
+$ umask [ARGS]
+--> interrogare e settare interattivamente nella sessione corrente, per rendere persistente la scelta si usano i file di configurazione della shell.
+	La umask é una maschera che toglie i permessi da non concedere. Di default i permessi assegnati ad un file o una directory sono quelli sensati (cioé rw-rw-rw- (666) per i file e rwxrwxrwx (777)) meno la umask.
+
+$ pwd
+--> print working directory
+
+$ cd PERCORSO
+--> change directory
+
+$ ls [OPZ] [FILES]
+-->  list directory contents 
+		-l --> abbina al nome le informazioni associate al file
+				Una riga tipo é 
+				-rw-r--r-- 1 root root 1514 Mar 29 11:07 /etc/passwd
+				Tipo Permessi n.link utente gruppo dimensioni dataModifica.
+				Tipo puó essere
+				- file standard
+					d directory
+					l link simbolico
+					b block special (device)
+					c character special (device)
+					p named pipe (FIFO)
+					s socket
+		-a --> non nasconde i nomi dei file che iniziano con .
+					• per convenzione i file di configurazione iniziano con un punto, non essendo interessanti per l’utente non sono mostrati di default da ls
+		-A --> come -a ma esclude i file particolari . e ..
+		-F --> pospone il carattere * agli eseguibili e / ai direttori
+		-d --> lista il nome delle directory senza listarne il contenuto
+					• il comportamento di default di ls quando riceve come parametro una directory è di elencarne il contenuto, cosa spesso indesiderabile quando nomi di file e directory vengono espansi dalla shell a partire da wildcard
+		-R --> percorre ricorsivamente la gerarchia
+		-i --> indica gli i-number dei file oltre al loro nome
+		-r --> inverte l'ordine dell'elenco
+		-t --> lista i file in ordine di data/ora di modifica (dal più recente)
+
+$ touch [OPZ] FILE
+--> permette di modificare i timestamp di file. Se si passa solo FILE viene creato se non esiste.
+
+$ stat [OPZ]
+--> permette di visualizzare i metadati in un formato arbitrario.
+
+$ rm [OPZ] FILE
+--> cancella file (o meglio rimuovere il link => file cancellato se link count = 0)
+
+$ cp FILE DEST
+--> copia FILE in DEST
+
+$ mv FILE DEST
+--> sposta FILE in DEST
+
+$ ln [ARGS]
+--> crea link ad un file. Hardlink di default
+		-s permette di creare symlink
+
+$ mkdir DIR
+--> crea la directory DIR
+
+$ rmdir DIR 
+--> rimuove la directory DIR.
+	Nota: DIR deve essere vuota, altrimenti fare rm -r DIR
+
+$ find [ARGS]
+--> permette di cercare in tempo reale nel filesystem tramite criteri diversi 
+	Esempio: find /usr/src -name '*.c' -size +100k -print
+	Opzioni utili: 
+	-exec COMANDO \;	--> viene lanciato COMANDO per ogni file trovato. In COMANDO si puó usare {}, che viene sostituita con nome di file trovato. /; indica la fine del COMANDO
+				    da eseguire
+	-name STRING		--> cerca i risultati che fanno match con STRING
+	-size TARGET		--> risulti che fanno match con la dimensione TARGET
+	-type TIPO			--> tipo del file (v. ls)
+	-nouser				--> orfani (senza proprietario)
+	-mtime TIME			--> tempo di modifica. TIME nel formato +/-NUM (+=piú di NUM giorni, -= meno di NUM giorni)
+
+$ locate [ARGS]
+--> effettua la ricerca su di un database indicizzato. Carico ridotto sul sistema rispetto a find. Risposta quasi istantanea. L'unico criterio di ricerca é il pattern nel nome. 
+    Risultati non aggiornati.
+
+$ dd [ARGS]
+--> permette di leggere byte da qualsiasi file (if=<NOME>) e scrivere su qualsiasi file (of=<NOME>)
+		– se NOME = - si intende STDIN (per if) o STDOUT (per of) specificando
+		– da che punto iniziare a leggere skip=<N>
+		– in che punto iniziare a scrivere seek=<N>
+		– quanti dati trasferire count=<N>
+		– con che dimensione di blocco operare bs=<N>
+		inoltre può eseguire trasformazioni di formato e tracciare il progresso del trasferimento
+    Esempio: dd if=/dev/zero of=file.out bs=4k count=16k
+
+$ tar [OPZ] [ARGS]
+--> permette di creare archivi.
+	Va sempre specificato uno (SOLO) dei seguenti comandi:
+		-A			--> concatena più archivi
+		-c			--> crea un nuovo archivio
+		-d			--> trova le differenze tra archivio e filesystem
+		-r			--> aggiunge file ad un archivio
+		-t			--> elenca il contenuto di un archivio
+		-u			--> aggiorna file in un archivio
+		-x			--> estrae file da un archivio
+		--delete	--> cancella file da un archivio
+	Altre opzioni (facoltative) sono:
+	-f FILENAME		--> per specificare un file di archiviazione (altrimenti assume /dev/tape per ragioni storiche). FILENAME puó essere - (carattere '-') quando si specificano le opzioni:
+							-d (differenze/confronto): Confronta l'archivio con i file sul filesystem.
+							-t (list): Elenca il contenuto dell'archivio.
+							-x (extract): Estrae i file dall'archivio.
+							-c (create): Crea un nuovo archivio. Quindi usa - per creare l'archivio: tar -cf - /percorso/alla/mia_cartella | gzip > mio_archivio.tar.gz
+	-p 				--> (preserve) conserva tutte le informazioni di protezione
+							– (funziona pienamente solo per root, un utente standard quando ricrea i file estraendoli da un archivio è forzato a dargli la sua ownership)
+	-v 				--> stampa i dettagli durante l’esecuzione
+	-T <ELENCO> 	--> prende i nomi dei file da archiviare da ELENCO invece che come parametri sulla riga di comando
+	-C <DIR> 		--> svolge tutte le operazioni come dopo cd DIR
+	Esempi utili: 
+	tar cvpf users.tar /home/* <-- creazione
+	tar -C /newdisk -xvpf users.tar <-- estrazione
+	tar cvpf - /home/* | tar -C /newdisk -xvpf - <-- pipeline
+
+$ rsync [OPZIONI] SORGENTE DESTINAZIONE
+--> versione evoluta di scp, per copiare file su un altro host.
+		– SORGENTE = elenco di file e cartelle
+		– DESTINAZIONE = cartella
+	Copia via rete con protocollo nativo
+		– da / verso host su cui gira il demone rsyncd
+			rsync [USER@]HOST::SRCDIR DESTINAZIONE
+			rsync SORGENTE [USER@]HOST::DESTDIR
+	Copia via rete via SSH
+		– no demone rsyncd richiesto
+			rsync [USER@]HOST:SRCDIR DESTINAZIONE
+			rsync SORGENTE [USER@]HOST:DESTDIR
+	Opzioni utili:
+		Come copiare
+			-l / -L copia i link come link / come file puntato
+			-p / -o / -g preserva i permessi, il proprietario, il gruppo
+			-t / -a / -N preserva i ts di modifica / accesso / creazione
+			-D preserva i file speciali
+			-a = -rlptgoD
+			-b backup (come? --backup-dir / --suffix )
+		Cosa copiare
+			-r ricorsivo
+			-u salta i file che sono più nuovi a destinazione o che a parità di età hanno la stessa dimensione
+			-c salta i file che a destinazione hanno lo stesso checksum
+			--exclude specifica path da non includere nella copia
+
+$ ip [ARGS]
+-->  sostituisce ifconfig e route,controllo completo di tutti gli aspetti più avanzati (link layer, interfacce virtuali, tunnel, VXLAN, policy-based routing, ...)
+		sottocomando address (a)
+			– visualizzazione ip a
+			– assegnazione ip a add <address>/<mask> dev <interface>
+			– rimozione ip a del <address>/<mask> dev <interface>
+		sottocomando route (r)
+			– visualizzazione ip r
+			– routing via gw ip r add <dst_net>/<mask> via <gw_addr>
+			– routing via dev ip r add <dst_net>/<mask> dev <interface>
+			– rimozione ip a del <address>/<mask>
+
+$ ping <IP>
+--> Verifica di base della connettività
+
+$ traceroute <IP>
+--> Verifica del percorso dei pacchetti
+
+$ ss [ARGS]
+--> Verifica dello stato delle connessioni
+	Opzioni utili:
+		-t / -u	--> TCP/UDP only
+		-l / -a	--> stato LISTEN (il default è ESTABLISHED) / ALL
+		-n 		--> non risolvere gli indirizzi/porte in nomi simbolici
+		-p 		--> mostra processi che usano la socket
+
+$ tcpdump [ARGS]
+--> intercettazione contenuto dei pacchetti
+
+$ getent <db name> <keyword>
+-->  permette di interrogare i database del name service switch (NSS)
+
+$ host [ARGS]
+--> tipicamente per conversioni IP ←→ nome
+		– query di un nome: host www.unibo.it
+		– query a un server specifico: host www.unibo.it 8.8.8.8
+
+$ dig [ARGS]
+--> ipicamente per ottenere informazioni legate a un dominio diverse da nomi host
+		– conoscere i Mail eXchanger: dig mx example.com
+		– conoscere i Name Server: dig ns example.com
+		
+$ ps [ARGS]
+--> permette di ottenere informazioni sui processi. Disponibili diverse opzioni:
+	- sezione PROCESS SELECTION BY LIST per listare processi secondo le loro proprietà,
+	- sezione OUTPUT FORMAT CONTRO per specificare come formattare la lista prodotta,
+	- sezione PROCESS STATE CODES spiega il significato della colonna STAT.
+
+$ uptime [ARGS]
+--> dà diverse informazioni circa: tempo attuale, da quanto tempo il sistema è in esecuzione, quanti users sono attualmente loggati e il carico del sistema negli ultimi 1, 5 e 15 minuti.
+	Output tipo:
+		15:40:05 up 21:19,  1 user,  load average: 0.44, 0.34, 0.23
+	Nota: Load average = media, su 1/5/15 minuti, del numero di processi in stato R (running/runnable) o D (uninterruptible I/O). Non è % CPU, ma domanda di CPU/I/O rispetto ai core
+	disponibili.
+
+$ free [ARGS]
+--> occupazione memoria. Alla cache si può rinunciare (con un impatto), infatti: available ≈ free + buff/cache
+
+$ top [ARGS]
+--> riassume interattivamente l'output di ps, uptime e free, quindi dà informazioni sui processi e le risorse usate.
+
+$ vmstat [PERIODO] [ARGS]
+--> uso di memoria, paging, I/O, trap. Se specificato PERIODO, numero intero, ripete l'operazione ogni PERIODO secondi.
+
+$ iostat [ARGS] PERCORSO
+--> statistiche su uso CPU e I/O. Utile soprattutto per valutare l'uso dei dispositivi di I/O.
+
+$ df [ARGS]
+--> mostra l’utilizzo dello spazio disco. Le righe sono formattate tipo:
+	Filesystem 	1K-blocks 	Used 	Available 	Use% 	Mounted on
+	udev 		101812 		0 	101812 		0% 	/dev
+
+$ du [ARGS]
+--> permette di calcolare lo spazio occupato dai file (in una directory). Senza opzioni particolari du riporta l’occupazione totale delle dir passate come argomento ed anche di tutte le 
+    subdir in esse presenti. 
+    -s riporta il summary, senza dettagli sulle subdir.
+    
+$ fuser [ARGS] [PATH]
+--> permette di individuare quali processi stiano usando un file o un intero filesysyem.
+    -m PATH	spcifica un inter ofilesystem (PATH) e restituisce tutti i processi che ne fanno uso.
+    c current directory.
+    e executable being run.
+    f open file. f is omitted in default display mode.
+    r root directory.
+    m mmap'ed file or shared library.
+    
+$ lsof [ARGS]
+--> lista di file aperti. Elenca tutti i file impegnati da tutti i processi.
+    Nota: un file cancellato (unlink) dopo l'apertura sarà irreperibile sul filesystem, ma referenziato dal processo e quindi visibile a lsof.
+    
+

@@ -1,0 +1,16 @@
+---
+- name: "Sample playbook" # Ogni playbook deve avere un nome; tutti i "name" devono iniziare con una lettera maiuscola"
+  hosts: all
+
+  tasks:
+  - name: Copy script
+    ansible.builtin.copy:
+      src: /home/justwhitee/copy.sh
+      dest: /home/justwhitee/VM-vagrant/main-BookWorm64/copy.sh
+      mode: '0755'
+
+  - name: Copy config file
+    ansible.builtin.copy:
+      src: /home/justwhitee/save.list
+      dest: /home/justwhitee/VM-vagrant/main-BookWorm64/save.list
+      mode: '0644'

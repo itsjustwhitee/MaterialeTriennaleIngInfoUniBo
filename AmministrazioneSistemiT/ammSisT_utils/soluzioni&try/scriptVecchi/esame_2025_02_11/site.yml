@@ -1,0 +1,39 @@
+---
+- name: Common
+  hosts: all
+  become: true
+  roles:
+    - common            # fix auto eth0
+    - proxy_lab         # proxy per lab
+
+- name: Clients
+  hosts: C*
+  become: true
+  roles:
+    - net_dhcp          # assegnamento IP via DHCP (eth1) 
+    - ldap_login_c      # configurazione client login via LDAP
+    - ssh_keys          # copia coppia di chiavi SSH
+    - rsyslog_c         # configurazione rsyslog
+    - install_script_c  # copia script
+
+- name: Servers
+  hosts: S*
+  become: true
+  roles:
+    - net_dhcp          # assegnamento IP via DHCP (eth1)
+    - ldap_login_s      # configurazione client login via LDAP
+    - ssh_authkeys      # copia chiavi pubbliche per login senza password
+    - snmp_agent        # installazione e configurazione SNMP agent
+
+- name: Router
+  hosts: R
+  become: true
+  roles:
+    - net_static        # assegnamento IP statico (eth1, eth2)
+    - dnsmasq_dhcp      # server DHCP
+    - net_ipforward     # abilitazione IP forwarding
+    - ldap_server       # configurazione server LDAP (slapd)
+    - rsyslog_r         # configurazione rsyslog
+    - snmp_manager      # installazione e configurazione SNMP manager
+    - install_script_r  # copia script
+    - systemd_service   # configurazione servizio systemd per dispatch.sh

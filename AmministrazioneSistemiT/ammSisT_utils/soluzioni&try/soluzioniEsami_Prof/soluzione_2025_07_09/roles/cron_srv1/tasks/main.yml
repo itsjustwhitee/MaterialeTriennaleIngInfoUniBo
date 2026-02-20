@@ -1,0 +1,11 @@
+---
+- name: Setup cron
+  ansible.builtin.cron:
+    name: "availability.sh"
+    minute: "1-59/2"
+    hour: "6-23"
+    # day: "*"
+    # month: "*"
+    # weekday: "*"
+    user: "root"
+    job: "/usr/bin/availability.sh"

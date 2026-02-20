@@ -1,0 +1,33 @@
+[Unit]
+Description=Descrizione breve del servizio
+After=network.target             # Avvia questo servizio solo dopo che la rete è disponibile
+Before=apache2.service           # Avvia questo servizio prima di apache2
+Requires=network.target          # Se network.target fallisce, anche questo servizio verrà fermato
+Wants=postgresql.service         # Se possibile, avvia anche postgresql.service, ma non è vincolante
+ConditionPathExists=/etc/miofile.conf  # Avvia solo se questo file esiste
+Conflicts=shutdown.target        # Questo servizio sarà terminato se viene avviato shutdown.target
+
+[Service]
+Type=simple                      # Il processo principale è il comando specificato in ExecStart (default)
+ExecStart=/usr/bin/mio_comando --opzioni       # Comando principale da eseguire per avviare il servizio
+ExecStartPre=/usr/bin/preparazione_script.sh   # Script da eseguire prima dell'avvio
+ExecStartPost=/usr/bin/post_start.sh           # Script da eseguire subito dopo l'avvio
+ExecStop=/usr/bin/stop_script.sh               # Comando da eseguire per fermare il servizio
+Restart=on-failure               # Riavvia il servizio solo se termina con errore
+RestartSec=5                     # Attendi 5 secondi prima di provare a riavviare il servizio
+WorkingDirectory=/var/www/mio_servizio   # Directory di lavoro per il servizio
+User=www-data                    # Utente con cui eseguire il servizio
+Group=www-data                   # Gruppo con cui eseguire il servizio
+Environment="ENV=production" "DEBUG=false"  # Variabili d’ambiente passate al servizio
+StandardOutput=journal           # Dove inviare l'output standard (journal = journald)
+StandardError=journal            # Dove inviare l'output errore
+TimeoutStartSec=30               # Timeout massimo per l'avvio
+TimeoutStopSec=30                # Timeout massimo per l'arresto
+KillMode=control-group           # Termina tutti i processi del cgroup associato
+
+[Install]
+WantedBy=multi-user.target       # Questo servizio sarà avviato al runlevel multi-utente
+RequiredBy=multi-user.target     # multi-user.target richiede che questo servizio sia attivo
+Also=mio_servizio.service        # Abilita anche questo servizio quando si abilita il principale
+Alias=mio_servizio_alias.service # Nome alternativo per questo servizio
+

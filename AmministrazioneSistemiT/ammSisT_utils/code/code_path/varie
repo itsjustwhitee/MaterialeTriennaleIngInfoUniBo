@@ -1,0 +1,139 @@
+sudo dhclient -v
+--> per forzare il lease del DHCP, ossia la richiesta di un indirizzo al DHCP, e contestualmente l'assegnazione del server DNS
+    Si può anche specificare l'interfaccia per la quale richiedere al DCHP (è opzionale). Se non specificata viene chiesto per tutte quelle disponibili.
+    
+generate_password() {
+    tr -dc 'A-Za-z0-9' </dev/urandom | head -c 10
+}
+--> per generare caratteri casuali (sensati). Con head si decide la quantità
+	
+scp user@IP_REMOTO:percorso/del/file_sorgente /percorso/di/destinazione_locale
+--> per copiare file da un host all'altro (bisogna avere le chiavi ssh). Nel caso di directory con file dentro usare -r (ricorsivo)
+    > Invertendo i due argomenti si può fare copia da host locale a host remoto
+    > aggiungendo user@IP: anche nel secondo argomento si può fare copia tra due macchine remote 
+    
+tcpdump -i eth2 -nlp src net 10.100.0.0/16 and dst port 22 and 'tcp[tcpflags] && tcp-syn != 0'
+--> controlla il traffico su eth2 che proviene dalla subnet 10.100.0.0/16 e destinato alla porta 22 (dell'host), filtrando ogni pacchetto che ha il flag syn (messaggio iniziale del 
+    3-way handshake), ossia filtra ogni "avvio" di connessione ssh (porta 22) sull'host da parte della subnet specificata.
+    Le opzioni -nlp specificano di non convertire gli indirizzi ip in nomi host, di rendere l'output line-buffered (ottimo per elaborarlo), catturare solo il traffico destinato all'host
+    (modalità promiscua disattivata).
+    
+tcpdump -i eth2 -nlp '((dst net 10.222.222.0/24 and dst port 2049) or (src net 10.222.222.0/24 and src port 2049))' 
+--> filtra il traffico sia destinato che inviato (in or) da 10.222.222.0/24 porta 2049
+
+ldapsearch -x -LLL -H "ldap://$IP/" -b "ou=Groups,dc=labammsis" -s one | grep "^cn: " | awk -F 'cn: ' '{ print $2 }')
+--> ottenimento di tutti i gruppi esistenti nella directory ldap
+
+ldapsearch -x -LLL -H "ldap://$IP/" -b "cn=$GROUP,ou=Groups,dc=labammsis" -s base "gidNumber" | awk -F 'gidNumber: ' '{ print $2 }'
+--> ottenimento gidNumber del gruppo GROUP
+
+UID_NUMBER=$(ldapsearch -x -LLL -H "ldap://$IP/" -b "ou=People,dc=labammsis" -s one "uidNumber" | awk -F 'uidNumber: ' '{ print $2 }' | sort -nr | head -1)
+--> ottenimento uidNumber maggiore
+
+ldapadd -x -D "cn=admin,dc=labammsis" -w "gennaio.marzo" -H "ldap://$IP" <<EOF
+dn: cn=$groupname,ou=Groups,dc=labammsis
+objectClass: top
+objectClass: posixGroup
+cn: $groupname
+gidNumber: $groupid
+
+dn: uid=$username,ou=People,dc=labammsis
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+givenName: $USERNAME
+cn: $username
+sn: $username
+uid: $username
+uidNumber: $userid
+gidNumber: $groupid
+homeDirectory: /home/$username
+loginShell: /bin/bash
+gecos: Commento per l'utente $username
+userPassword: {CRYPT}x
+EOF
+--> aggiunta di un utente e suo gruppo (se gruppo già esistente rimuovere il primo "paragrafo"). NON aggiungere indentazione alla parte tra EOF.
+    La password va impostata separatamente con
+    	ldappasswd -x -H ldap://$FLOATIP -D $BINDDN -w $BINDPW -s "$password" "uid=$username,ou=People,dc=labammsis"
+   Variabili utili da usare per ldap:
+	BINDDN="cn=admin,dc=labammsis"
+	BINDPW="gennaio.marzo"
+	LDAPWRITE="-x -H ldap://$IP -D $BINDDN -w $BINDPW"
+	LDAPREAD="-x -H ldap://$IP"
+
+snmpwalk -v 1 -c public "$1" .1.3.6.1.4.1.2021.10.1.101 | grep -qi "Load Average too high" && <azione_se_oltre_soglia>
+--> ottenimento carico del sistema oltre soglia (del sistema). 
+
+snmpget -Oqv -v 1 -c public "$IP" NET-SNMP-EXTEND-MIB::nsExtendOutputFull.\"$PROCNAME\"
+--> invoca il comando/script dichiarato con extend PROCNAME sull'agent snmp e ne restituisce l'output 
+
+chmod 400 /home/$USERNAME/.ssh/id_rsa
+chmod 444 /home/$USERNAME/.ssh/id_rsa.pub
+--> permessi corretti chiavi SSH (minimi)
+
+echo "extend-sh $NOME_CHIAMATA [/usr/bin/sudo [-u $USER]] $COMANDO" | sudo /usr/bin/tee -a /etc/snmp/snmpd.conf > /dev/null
+--> aggiunge una extend snmp al file di configurazione. COMANDO deve essere path del comando (which $NOMECOMANDO).
+    Poi va riavviato snmp: 
+    	sudo /usr/bin/systemctl restart snmpd.service
+    	
+ssh -o StrictHostKeyChecking=no ${USER}@${IP} "$COMANDO"
+--> connettersi via ssh per eseguire un COMANDO.
+    COMANDO=pipe o comando da far eseguire sull'host remoto
+    USER=identità con la quale ci si vuole connettere ed eseguire il comando (se sull'host locale si è autenticati con l'utente con cui si vuole eseguire il comando sull'host
+    	 remoto, si può omettere ${USER}@).
+    	 Nota: USER seve esistere sull'host remoto
+    Se la chiave ha un nome strano (diverso ad esempio da id_rsa, id_ecdsa o id_ed25519 o altri) allora va specificato con -i "$PATH" il percorso assoluto della chiave.
+
+ldapdelete $LDAPWRITE "uid=$username,ou=People,dc=labammsis"
+ldapdelete $LDAPWRITE "cn=$username,ou=Groups,dc=labammsis"
+--> eliminazione di utente e gruppo proprio (quello con lo stesso nome dell'utente)
+
+systemctl status $SERVICE >/dev/null || systemctl start $SERVICE
+--> controlla status di SERVICE e lo riavvio se non attivo (i.e. slapd per ldap)
+
+ip a add "$IP/$MASK" dev $IFACE
+--> aggiunge IP/MASK all'interfaccia IFACE (i.e. eth1)
+
+ip a del "$IP/$MASK" dev $IFACE
+--> rimuove IP/MASK dall'interfaccia IFACE (i.e. eth1)
+
+logger -p $LABEL -n "$IP" "$MESSAGGIO"
+--> per inviare messaggi etichettati LABEL (i.e. local6.warn) all'host rsyslog IP
+
+while ldapsearch -x -LLL -H "ldap://$IP/" -b "uid=$USERNAME,ou=People,dc=labammsis" -s base | grep "^dn:"
+do
+    sleep 1
+done
+--> attesa che utetne USERNAME venga rimosso
+
+tail -n0 -F "$FILE" | while IFS=_ read HEAD TOKEN TAIL
+do
+	...
+done
+--> lettura da file FILE (nuove righe)
+
+ldap_sync() {
+    # $1 = REMOTE
+    (
+        ldapsearch -x -H "ldap://localhost" -b "ou=People,dc=labammsis" -s one
+        ldapsearch -x -H "ldap://localhost" -b "ou=Groups,dc=labammsis" -s one
+    ) |
+    grep '^dn: ' | cut -c5- |
+    ldapdelete -x -H "ldap://localhost" -D "$BINDDN" -w "$BINDPW"
+
+    (
+        ldapsearch -x -H "ldap://$1" -b "ou=People,dc=labammsis" -s one
+        ldapsearch -x -H "ldap://$1" -b "ou=Groups,dc=labammsis" -s one
+    ) |
+    ldapadd -x -H "ldap://localhost" -D "$BINDDN" -w "$BINDPW"
+}
+--> per sincornizzare il contenuto della cartella ldap
+
+find "$START_PATH" -name '*.c' -size +100k -exec cat {} \
+--> per ogni file che rispetta certe caratteristiche (estensione .c e size maggiore di 100kB) trovato a partire da START_PATH, ne mostra il contenuto (cat).
+    Nota: {} viene sostituito per ogni match con il percorso del file.
+    Nota: \ indica la fine del comando (essenziale)
+    
+find "$START_PATH" -type f -nouser -mtime -2 -exec grep -l TXT {} \
+--> elenca solo i file regolari (-type f) “orfani” (-nouser) modificati meno (-) di due (2) giorni (2*24 ore) fa che contengono TXT (grep -l TXT).

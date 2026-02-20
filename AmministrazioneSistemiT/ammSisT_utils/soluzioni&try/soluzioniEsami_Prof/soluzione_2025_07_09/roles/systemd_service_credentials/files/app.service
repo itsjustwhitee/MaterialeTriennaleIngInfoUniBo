@@ -1,0 +1,14 @@
+[Unit]
+Description=MyApp Service
+After=network.target
+
+[Service]
+Type=simple # / oneshot
+ExecStart=/usr/sbin/credentials.sh
+Restart=on-failure # / always
+User=root
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

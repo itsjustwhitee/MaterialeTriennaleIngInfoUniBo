@@ -1,0 +1,32 @@
+# nota: questi task funzionano correttamente solo se ldap è già ben configurato su tutti gli host
+# altrimenti non esistono l'utente exam e il gruppo demo; potrebbe essere necessario ripetere il provisioning
+---
+- name: Copy scripts
+  ansible.builtin.copy:
+    src: do.sh
+    dest: /usr/local/bin/do.sh
+    owner: root
+    group: root # dovrebbe essere demo
+    mode: "0070"
+
+- name: Create home and keys dir
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0700'
+    owner: root # dovrebbe essere exam
+    group: root # dovrebbe essere demo
+  loop:
+    - /home/exam
+    - /home/exam/.ssh
+
+- name: Copy keys
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: /home/exam/.ssh
+    owner: root # dovrebbe essere exam
+    group: root # dovrebbe essere demo
+    mode: "0600"
+  loop:
+    - id_demo
+    - id_demo.pub

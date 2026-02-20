@@ -1,0 +1,2 @@
+
+- dispatch.sh sul router deve essere avviato automaticamente al boot e riavviato in caso di terminazione per qualsiasi causa

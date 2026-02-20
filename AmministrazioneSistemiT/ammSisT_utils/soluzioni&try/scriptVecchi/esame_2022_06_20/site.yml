@@ -1,0 +1,38 @@
+---
+- name: Common
+  hosts: all
+  become: true
+  roles:
+    - common            # fix auto eth0
+    - proxy_lab         # proxy per lab
+
+- name: Router
+  hosts: R
+  become: true
+  roles:
+    - net_static_r      # assegnamento IP statico
+    - net_ipforward     # abilitazione IP forwarding
+    - dnsmasq_dhcp      # server DHCP
+    - ldap_server       # configurazione server LDAP (slapd)
+
+- name: Server
+  hosts: S
+  become: true
+  roles:
+    - net_static_s      # assegnamento IP statico
+    - ldap_login        # configurazione client login via LDAP
+    - ssh_authkeys      # copia chiavi pubbliche per login senza password
+    - ssh_keys          # copia coppia di chiavi SSH
+    - install_scripts_s # copia script aka.sh e monitor.sh
+    - snmp_manager      # installazione e configurazione SNMP manager
+
+- name: Clients
+  hosts: C*
+  become: true
+  roles:
+    - net_dhcp          # assegnamento IP via DHCP 
+    - ldap_login        # configurazione client login via LDAP
+    - ssh_authkeys      # copia chiavi pubbliche per login senza password
+    - ssh_keys          # copia coppia di chiavi SSH
+    - snmp_agent        # installazione e configurazione SNMP agent
+    - install_script_c  # copia script watchdog.sh

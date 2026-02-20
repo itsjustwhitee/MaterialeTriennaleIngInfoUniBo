@@ -1,0 +1,16 @@
+---
+- name: Ensure home directory exists
+  ansible.builtin.file:
+    path: {{ homepath }}
+    state: directory
+    owner: {{ user }}
+    group: {{ user }}
+    mode: '0700'
+
+- name: Ensure ssh directory exists
+  ansible.builtin.file:
+    path: {{ homepath }}/.ssh
+    state: directory
+    owner: {{ user }}
+    group: {{ user }}
+    mode: '0700'

@@ -1,0 +1,7 @@
+---
+- name: script privilegiato
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    line: 'login ALL=(root) NOPASSWD: /usr/bin/mkdir,/usr/bin/chmod,/usr/bin/chown,/usr/bin/rm'
+

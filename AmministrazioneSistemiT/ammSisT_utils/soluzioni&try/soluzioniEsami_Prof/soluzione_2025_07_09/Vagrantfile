@@ -1,0 +1,54 @@
+# parametrizzato oltre quanto visto a lezione
+
+NUM_CLIENTS = 1
+NUM_ROUTERS = 1
+NUM_SERVERS = 2
+
+# eventuali indirizzi MAC delle macchine virtuali
+# utili per dare IP prefissati via DHCP
+
+MAC_ADRESSES = {
+  "WKS1" => "000000000001",
+  "SRV1" => "000000000021",
+  "SRV2" => "000000000031",
+}
+
+# esempio WKS1 <--NET1--> ROU1 <--NET2--> SRV{1,2}
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "debian/bookworm64"
+  config.vm.provider "virtualbox" do |vb|
+    vb.linked_clone = true
+  end
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "site.yml"
+  end
+
+    # prima il router che fornisce il servizio DHCP
+  (1..NUM_ROUTERS).each do |i|
+    config.vm.define "ROU#{i}" do |machine|
+      machine.vm.hostname = "ROU#{i}"
+      machine.vm.network "private_network", virtualbox__intnet: "NET1", auto_config: false
+      machine.vm.network "private_network", virtualbox__intnet: "NET2", auto_config: false
+    end
+  end
+
+  # prima i server che forniscono il servizio LDAP
+  (1..NUM_SERVERS).each do |i|
+    config.vm.define "SRV#{i}" do |machine|
+      machine.vm.hostname = "SRV#{i}"
+      machine.vm.network "private_network", virtualbox__intnet: "NET2", auto_config: false, mac: MAC_ADRESSES["SRV#{i}"]
+    end
+  end
+
+  # poi le workstation che li usano
+    (1..NUM_CLIENTS).each do |i|
+    config.vm.define "WKS#{i}" do |machine|
+      machine.vm.hostname = "WKS#{i}"
+      machine.vm.network "private_network", virtualbox__intnet: "NET1", auto_config: false, mac: MAC_ADRESSES["WKS#{i}"]
+      # altre configurazioni
+      # machine.vm.synced_folder ".", "/vagrant", disabled: true
+    end
+  end
+end

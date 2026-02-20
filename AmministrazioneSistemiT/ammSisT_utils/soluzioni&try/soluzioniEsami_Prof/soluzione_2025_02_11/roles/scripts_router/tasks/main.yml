@@ -1,0 +1,17 @@
+---
+- name: Copy scripts
+  ansible.builtin.copy:
+    src: dispatch.sh
+    dest: /bin/dispatch.sh
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Installa Systemd Unit per dispatch
+  ansible.builtin.copy:
+    owner: root
+    group: root
+    mode: '0644'
+    src: dispatch.service
+    dest: /etc/systemd/system/dispatch.service
+  notify: Start dispatch

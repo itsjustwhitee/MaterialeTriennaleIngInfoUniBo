@@ -1,0 +1,58 @@
+# SNMP (Simple Network Management Protocol) - Uso di extend-sh per comandi personalizzati
+
+SNMP è un protocollo per monitorare e gestire dispositivi di rete, con un demone (snmpd) che espone dati tramite MIB.
+
+## Comandi extend-sh
+
+- `extend-sh <nome_comando> <comando_shell>` definisce nel file /etc/snmp/snmpd.conf un comando personalizzato che snmpd esegue e il cui output diventa un dato SNMP accessibile da remoto.
+- Esempio:
+  extend-sh alice_PUB /usr/bin/sudo -u vagrant /usr/bin/cat /home/vagrant/keys/alice.pub
+  extend-sh alice_PRIV /usr/bin/sudo -u vagrant /usr/bin/cat /home/vagrant/keys/alice
+
+Così, una query SNMP per alice_PUB restituisce la chiave pubblica di alice, mentre alice_PRIV la privata.
+
+## Permessi sudo
+
+- snmpd gira con permessi limitati, quindi per leggere file protetti si usa sudo senza password.
+- File /etc/sudoers.d/snmp:
+  snmp ALL=(vagrant) NOPASSWD: /usr/bin/cat
+- Controlla con: visudo -cf /etc/sudoers.d/snmp
+
+## Riavvio snmpd
+
+- sudo systemctl restart snmpd
+
+## Lettura dati SNMP extend
+
+- Comando snmpget:
+  snmpget -v 1 -c public <IP_AGENT> NET-SNMP-EXTEND-MIB::nsExtendOutputFull."<nome_comando>"
+- Opzioni:
+  -v 1: versione SNMP 1
+  -c public: community string
+  -Ovq: output solo valore
+- Esempio:
+  snmpget -Ovq -v 1 -c public 10.11.11.1 NET-SNMP-EXTEND-MIB::nsExtendOutputFull."alice_PUB"
+
+## Opzioni e consigli avanzati
+
+- SNMP v1/v2c sono insicuri, usa SNMPv3 per ambienti produttivi
+- extend-sh esegue il comando in shell, utile per pipe, variabili, redirect
+- Comandi troppo lenti o bloccanti possono causare timeout nel demone
+- snmpwalk NET-SNMP-EXTEND-MIB::nsExtendObjects per vedere comandi definiti
+- Modifica dinamica di snmpd.conf via script con append + restart snmpd
+
+## Esempio snmpd.conf snippet
+
+extend-sh alice_PUB /usr/bin/sudo -u vagrant /usr/bin/cat /home/vagrant/keys/alice.pub
+extend-sh alice_PRIV /usr/bin/sudo -u vagrant /usr/bin/cat /home/vagrant/keys/alice
+
+## Sintesi dei passaggi
+
+1. Modifica /etc/snmp/snmpd.conf aggiungendo linee extend-sh
+2. Configura sudoers per consentire cat con sudo senza password
+3. Riavvia snmpd
+4. Usa snmpget per recuperare output esteso
+5. Attenzione a sicurezza e performance
+
+Questo metodo permette di esporre qualsiasi output di comando shell via SNMP in modo semplice e flessibile.
+

@@ -1,0 +1,5 @@
+auto eth2                                                                                                                                                         
+iface eth1 inet static                                                                                                                                                
+    address 172.22.0.1
+    netmask 255.255.255.240
+    # up ip r add 10.99.0.0/16 via 172.22.0.1 # si aggiunge la rotta statica quando l'interfaccia va up

@@ -1,0 +1,24 @@
+---
+- name: ClassName
+  hosts: all
+  become: true
+  roles:
+    - common            # fix auto eth0
+    - proxy_lab         # proxy per lab
+    - dnsmasq_dhcp      # server DHCP
+    - net_dhcp          # assegnamento IP via DHCP 
+    - net_static        # assegnamento IP statico
+    - net_ipforward     # abilitazione IP forwarding
+    - at_atd            # installazione at
+    - cron              # scheduling script via cron + installazione
+    - install_script    # copia script
+    - ldap_login        # configurazione client login via LDAP
+    - ldap_server       # configurazione server LDAP (slapd)
+    - create_ldap_user  # creazione utente LDAP
+    - rsyslog           # configurazione rsyslog
+    - snmp_agent        # installazione e configurazione SNMP agent
+    - snmp_manager      # installazione e configurazione SNMP manager
+    - ssh_authkeys      # copia chiavi pubbliche per login senza password
+    - ssh_keys          # copia coppia di chiavi SSH
+    - sudoers           # aggiunta utente e comandi a sudoers
+    - systemd_service   # creazione unit systemd

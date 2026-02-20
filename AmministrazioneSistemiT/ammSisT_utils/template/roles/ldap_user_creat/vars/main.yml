@@ -1,0 +1,9 @@
+ldap_server: 127.0.0.1
+user_uid: login
+user_cn: Login
+user_sn: Temp
+user_uidnumber: '1555'
+user_gidnumber: '1555'
+user_home: "/home/{{ user_uid }}"
+user_shell: /usr/bin/onoff.sh
+user_pass: start

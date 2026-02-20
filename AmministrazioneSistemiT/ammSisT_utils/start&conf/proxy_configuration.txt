@@ -1,0 +1,26 @@
+1.
+	sudo touch /etc/apt/apt.conf.d/proxy.conf 
+	sudo nano /etc/apt/apt.conf.d/proxy.conf 
+
+	# (dentro l'editor) inserire queste righe nel file:
+	Acquire::http::Proxy "http://192.168.123.249:8080/"; 
+	Acquire::https::Proxy "http://192.168.123.249:8080/";
+	
+2.
+	nano ~/.bashrc
+
+	# (dentro l'editor) inserire queste righe nel file:
+	export HTTP_PROXY="http://192.168.123.249:8080" 
+	export HTTPS_PROXY="http://192.168.123.249:8080" 
+	
+NOTA: 	cambiare il secondo numero degli indirizzi in base al lab. La regola è 12X dove X è il numero del lab (123 = lab3)
+
+3.
+	# applicazione delle modifiche al .bashrc (riesecuzione senza chiudere e riaprire terminale)
+	. "$HOME/.bashrc"
+	# oppure (equivalente)
+	source "$HOME/.bashrc"
+	
+4.
+	# per verificare che tutto funzioni
+	sudo apt update

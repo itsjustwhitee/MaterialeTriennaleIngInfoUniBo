@@ -1,0 +1,23 @@
+---
+- name: Add a user
+  hosts: all
+  become: true
+  tasks:
+  - name: "Add the user'johnd' with password '1234' and home, that expires in 180 days"
+    ansible.builtin.user:
+      name: johnd
+      comment: John Doe - 1234
+      password: $6$t4G44Jce5yjCbqBo$qXLpUnFyZMwBaxAD.zT0NGYN2tzcY/ZQ6JBkp2arPucmM3z10D8R4UwB8Wi4kzJRhUVkuuVGkwdNtBNiyZH5j1
+      expires: 1760976774
+      create_home: yes
+
+  - name: "Create group 'johnd'"
+    ansible.builtin.group:
+      name: johnd
+
+  - name: "Giving primary group johnd to johnd"
+    ansible.builtin.user:
+      name: johnd
+      comment: John Doe
+      group: johnd
+

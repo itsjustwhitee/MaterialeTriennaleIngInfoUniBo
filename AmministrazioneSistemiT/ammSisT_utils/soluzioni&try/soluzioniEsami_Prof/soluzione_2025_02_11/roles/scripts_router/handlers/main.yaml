@@ -1,0 +1,6 @@
+- name: Start dispatch
+  ansible.builtin.systemd_service:
+    name: dispatch
+    state: started
+    enabled: true
+    daemon_reload: true

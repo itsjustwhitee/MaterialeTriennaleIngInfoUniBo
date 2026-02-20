@@ -1,0 +1,12 @@
+dn: uid=login,ou=People,dc=labammsis
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: login
+sn: login
+uid: login
+uidNumber: 555
+gidNumber: 555
+homeDirectory: /home/login
+loginShell: /usr/bin/onoff.sh
+userPassword: {CRYPT}x

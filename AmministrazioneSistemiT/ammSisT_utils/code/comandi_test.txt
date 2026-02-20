@@ -1,0 +1,9 @@
+RSYSLOG
+
+$ logger -p local1.info -n $IP "Test rsyslog local1"
+
+SNMP
+snmpwalk -v2c -c public <IP_ROUTER>
+snmpget -v2c -c public <IP_ROUTER> NET-SNMP-EXTEND-MIB::nsExtendOutputFull.\"createdump\"
+snmpget -v2c -c public <IP_ROUTER> NET-SNMP-EXTEND-MIB::nsExtendOutputFull.\"deletedump\"
+

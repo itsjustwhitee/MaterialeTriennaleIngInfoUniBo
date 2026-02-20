@@ -1,0 +1,38 @@
+---
+- name: "Deploy backup script and systemd unit"
+  hosts: vm
+  become: true
+
+  tasks:
+    - name: Copy script
+      ansible.builtin.copy:
+        src: ./copy.sh
+        dest: /home/johnd/copy.sh
+        mode: '0755'
+        owner: johnd
+        group: johnd
+
+    - name: Copy config file
+      ansible.builtin.copy:
+        src: ./save.list
+        dest: /home/johnd/save.list
+        mode: '0644'
+        owner: johnd
+        group: johnd
+
+    - name: Copy systemd unit
+      ansible.builtin.copy:
+        src: ./copy.service
+        dest: /etc/systemd/system/copy.service
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and start service
+      ansible.builtin.systemd:
+        name: copy.service
+        enabled: true
+        state: started
+

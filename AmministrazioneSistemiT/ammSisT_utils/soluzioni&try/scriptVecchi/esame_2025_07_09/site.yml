@@ -1,0 +1,53 @@
+---
+- name: Common
+  hosts: all
+  become: true
+  roles:
+    - common            # fix auto eth0
+    - proxy_lab         # proxy per lab
+
+- name: Server
+  hosts: SRV1
+  become: true
+  roles:
+    - net_static_s1     # assegnamento IP statico
+    - cron_s1           # scheduling script via cron + installazione
+
+- name: Server
+  hosts: SRV1
+  become: true
+  roles:
+    - net_static_s2     # assegnamento IP statico
+    - cron_s2           # scheduling script via cron + installazione
+
+- name: Server
+  hosts: SRV*
+  become: true
+  roles:
+    - ldap_server       # configurazione server LDAP (slapd)
+    - snmp_agent        # installazione e configurazione SNMP agent
+    - snmp_manager      # installazione e configurazione SNMP manager
+    - create_ldap_user  # creazione utente LDAP
+    - install_script_s  # copia script availability.sh
+
+- name: Router
+  hosts: ROU
+  become: true
+  roles:
+    - net_static_r      # assegnamento IP statici
+    - net_ipforward     # abilitazione IP forwarding
+    - dnsmasq_dhcp      # server DHCP
+    - rsyslog           # configurazione rsyslog
+    - ssh_keys          # copia coppia di chiavi SSH
+    - systemd_service   # creazione unit systemd per avvvio di /usr/sbin/credentials.sh al boot
+    - install_script_r  # copia script credentials.sh
+
+- name: Workstations
+  hosts: WKS*
+  become: true
+  roles:
+    - net_dhcp          # assegnamento IP via DHCP 
+    - ldap_login        # configurazione client login via LDAP
+    - ssh_authkeys      # copia chiave pubblica per login senza password
+    - install_script_w  # copia script onoff.sh
+    - at_atd            # installazione at

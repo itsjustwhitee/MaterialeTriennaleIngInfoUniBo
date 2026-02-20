@@ -1,0 +1,14 @@
+[Unit]
+Description=Run at startup and on failure the dispatch.sh script
+After=network.target
+
+[Service]
+Type=simple # / oneshot
+ExecStart=/bin/dispatch.sh
+Restart=always
+User=root
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

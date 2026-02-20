@@ -1,0 +1,103 @@
+# ldif
+dn: ou=People,dc=labammsis
+objectClass: organizationalunit
+ou: People
+description: system users
+
+dn: ou=Groups,dc=labammsis
+objectClass: organizationalunit
+ou: Groups
+description: system groups
+
+dn: cn=demo,ou=Groups,dc=labammsis
+objectClass: top
+objectClass: posixGroup
+cn: demo
+gidNumber: 10000
+
+dn: uid=exam,ou=People,dc=labammsis
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+givenName: exam
+cn: exam
+sn: exam
+mail: exam.exam@exam.it
+uid: exam
+uidNumber: 10001
+gidNumber: 10000
+homeDirectory: /home/exam
+loginShell: /bin/bash
+gecos:exam
+userPassword: {crypt}x
+
+
+# Ricerca 
+ldapsearch -x -LLL -H "ldap://$IPSERVERLDAP" -b "ou=People,dc=labammsis" -s $VAL [$FILTRI]
+	VAL=one|base|sub
+	--> one=ricerca al primo sottolivello
+	--> base=ricerca solo sul livello specificato in -b
+	--> sub=ricerca in tutto l''albero
+	FILTRI=filtri per ottenere output di interesse a partire da quanto specificato in -b e -s.
+	--> Nota: con l'opzione -s base (per cercare solo sul Base DN) e specificando in FILTRI solo il nome di un attributo, il comando restituisce solo il valore di quell'attributo
+	    per la voce corrispondente, nella forma nomeAttributo: valore (quindi filtrabile con grep o awk)
+	--> Sintassi varia:
+		<filter>::='('<filtercomp>')'
+		<filtercomp>::=<and>|<or>|<not>|<item>
+		<and>::='&'<filterlist>
+		<or>::='|'<filterlist>
+		<not>::='!'<filter>
+		<filterlist>::=<filter>|<filter><filterlist>
+		<item>::=<simple>|<present>|<substring>
+		<simple>::=<attr><filtertype><value>
+		<filtertype>::=<equal>|<approx>|<greater>|<less>
+		<equal>::='='
+		<approx>::='~='
+		<greater>::='>='
+		<less>::='<='
+		<present>::=<attr>'=*'
+		<substring>::=<attr>'='<initial><any><final>
+		<initial>::=NULL|<value>
+		<any>::='*'<starval>
+		<starval>::=NULL|<value>'*'<starval>
+		<final>::=NULL|<value>
+		
+		esempi:
+		> (cn=Babs Jensen)
+		> (!(cn=Tim Howes))
+		> (&(objectClass=Person)(|(sn=Jensen)(cn=Babs J*)))
+		> (o= univ*of*mich*)
+		> (objectclass=posix Account)
+		> (&(|(uid=jack)(uid=jill))(objectclass=posix Account)
+
+# Eliminazione
+ldapdelete -x -LLL -H "ldap://$IPSERVERLDAP" -D "$BIND_DN" -w "$BIND_PW" "$UID_TODEL"
+	BIND_DN=Distinguished Name dell'utente usato per l'autenticazione (deve avere i permessi)
+	BIND_PW=Password in chiaro dell''utente da autenticare
+	UID_TODEL=Uid della voce da eliminare
+	
+# Aggiunta utente
+ldapadd -x -D "cn=admin,dc=labammsis" -w "gennaio.marzo" -H ldap://$IPR <<EOF
+dn: uid=$USERNAME,ou=People,dc=labammsis
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+givenName: $USERNAME
+cn: $USERNAME
+sn: $USERNAME
+uid: $USERNAME
+uidNumber: $UID
+gidNumber: $GID
+homeDirectory: /home/$USERNAME
+loginShell: /bin/bash
+userPassword: {crypt}x
+EOF
+# Nota: non aggiungere indentazione!!!!
+
+# Aggiunta/modifica password utente esistente
+ldappasswd -H ldap://$IPR -D "cn=admin,dc=labammsis" -w "gennaio.marzo" "uid=$USERNAME,ou=People,dc=labammsis" -s "$PASSWORD"
+	
+
+

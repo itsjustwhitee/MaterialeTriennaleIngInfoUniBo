@@ -1,0 +1,33 @@
+1. proxy configuration
+
+Rete requisiti:
+- installare tracepath 
+    sudo apt install iputils-tracepath
+- installare tcpdump
+    sudo apt install tcpdump
+
+CONFIGURAZIONE da VAGRANTFILE della RETE
+1. Per ogni macchina inserire configurazione nel Vagrantfile
+
+2. Per configurazioni piú specifiche di rete, modificare /etc/network/interfaces (ha la precedenza sulle configurazioni in /etc/network/interfaces.d)
+    Nota: mettere "auto ethX" invece di "allow-hotplux ethX" altrimenti non si applica la configurazione.
+
+3. Modifica di /etc/sysctl.conf:
+    decommentare (se necessario)
+    #net.ipv4.ip_forward=1
+
+4. Riavvio del service del networking e applico le modifiche
+    sudo systemctl restart networking
+    sudo sysctl -p
+
+CONFIGURAZIONE CON ANSIBLE
+1. script ansible e provisioning
+    Nota: ricordarsi di mettere "source-directory /etc/network/interfaces.d" se si modificano le interfacce da interfaces.d/ethX e non nel file interfaces
+    Handler utile
+    """
+    handlers:
+    - name: Restart Networking
+        ansible.builtin.service:
+        name: networking
+        state: restarted
+    """

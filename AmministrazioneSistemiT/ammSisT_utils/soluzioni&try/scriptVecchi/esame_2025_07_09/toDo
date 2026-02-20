@@ -1,0 +1,3 @@
+- configurare ruoli
+- /usr/sbin/credentials.sh collocato su ROU deve essere avviato automaticamente al boot ==> fare service
+- aggiungere possibilità di connessione ssh con root da WKS a SRV

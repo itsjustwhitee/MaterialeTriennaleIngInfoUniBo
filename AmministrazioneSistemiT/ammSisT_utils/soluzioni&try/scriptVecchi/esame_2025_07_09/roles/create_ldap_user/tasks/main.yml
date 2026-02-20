@@ -1,0 +1,26 @@
+---
+- name: Creazione utente e gruppo senza file ausiliari
+  command: ldapadd -x -H ldap://{{ ldap_server }} -D cn=admin,dc=labammsis -w gennaio.marzo
+  args:
+    stdin: |
+      dn: cn={{ user_uid }},ou=Groups,dc=labammsis
+      objectClass: top
+      objectClass: posixGroup
+      cn: {{ user_uid }}
+      gidNumber: {{ user_gidnumber }}
+
+      dn: uid={{ user_uid }},ou=People,dc=labammsis
+      objectClass: inetOrgPerson
+      objectClass: posixAccount
+      objectClass: shadowAccount
+      cn: {{ user_cn }}
+      sn: {{ user_sn }}
+      uid: {{ user_uid }}
+      uidNumber: {{ user_uidnumber }}
+      gidNumber: {{ user_gidnumber }}
+      homeDirectory: {{ user_home }}
+      loginShell: {{ user_shell }}
+      userPassword: {CRYPT}x
+
+- name: Imposta la password
+  command: ldappasswd -x -H ldap://{{ ldap_server }} -D cn=admin,dc=labammsis -w gennaio.marzo -s {{ user_pass }} uid={{ user_uid }},ou=People,dc=labammsis

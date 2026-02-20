@@ -1,0 +1,17 @@
+---
+- name: Ensure cron is installed
+  ansible.builtin.apt:
+    name: cron
+    state: present
+    update_cache: true
+
+- name: Setup cron
+  ansible.builtin.cron:
+    name: "availability.sh"
+    minute: "2-58/2"
+    hour: "6-23"
+    # day: "*"
+    # month: "*"
+    # weekday: "*"
+    user: "root"
+    job: "/usr/bin/availability.sh"

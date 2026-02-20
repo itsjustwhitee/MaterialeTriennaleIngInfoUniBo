@@ -1,0 +1,34 @@
+---
+- hosts: R
+  become: true
+  roles:
+    #   - set_proxy
+   - common
+   - netr1
+   - ipforward
+   - dnsmasqr1
+   - ldap_server
+   - rsyslog_r
+   - snmp_controller
+   - scripts_router
+
+- hosts: C*
+  become: true
+  roles:
+    #- set_proxy
+   - common
+   - eth1dhcp
+   - ldap_login
+   - rsyslog_c
+   - scripts_client
+
+- hosts: S*
+  become: true
+  roles:
+    #- set_proxy
+   - common
+   - eth1dhcp
+   - ldap_login
+   - snmp_agent
+   - scripts_server
+
