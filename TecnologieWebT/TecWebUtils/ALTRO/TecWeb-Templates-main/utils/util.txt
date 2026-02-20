@@ -1,0 +1,194 @@
+HTML
+<form action="http://localhost:8080/TW_Esame_200115_1_Password/login" method="post">
+        username:
+        <input type="text" id="username" name="username"><br>
+        password:
+        <input type="text" id="password" name="password"><br>
+        group:
+        <input type="text" id="group" name="group"><br>
+        <button type="submit">Login</button>
+</form>
+
+
+menù a tendina
+<form action="http://site.com/bin/adduser" method="post">
+<select name="provincia" >
+<option value="BO" selected="selected">Bologna</option>
+<option value="MO">Modena</option>
+<option value="RE">Reggio Emilia</option>
+<option value="PR">Parma</option>
+<option value="PC">Piacenza</option>
+</select>
+</form> 
+
+
+
+
+
+SERVLET
+import com.google.gson.Gson;
+
+extends HttpServlet
+
+@Override
+    public void init(ServletConfig conf) throws ServletException {
+        super.init(conf);
+
+    }
+
+protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException, NumberFormatException {
+
+String matrix=req.getParameter("matrix");
+
+getServletContext().getRequestDispatcher("/404.html").forward(req, resp);
+
+resp.sendRedirect(req.getContextPath()+"/index.jsp");
+
+ServletContext application = getServletContext();
+
+application.setAttribute("numRichieste", num);
+
+
+//max time session
+HttpSession currentSession=req.getSession(); //creo nuova sessione
+            currentSession.setAttribute("user", paramUsername);
+            currentSession.setMaxInactiveInterval(60*60);// validita sessione 1h
+
+
+
+JSP
+<%@ page session="true"%>
+<%@ page import="java.util.*"%>
+<%@ page import="javax.servlet.*"%>
+
+<a href=<%=request.getContextPath()%>/login.jsp>vai a ...</a>
+
+String u=request.getParameter("username");
+
+List<HttpSession> l=(List<HttpSession>)(getServletConfig().getServletContext().getAttribute("sessioni"));
+
+Menù a tendina in jsp 
+<select>
+        <%
+        for(int i=0;i<roba.lenght;i++){
+            %>
+        <option value="<%=roba[i].getId%>"><%=roba[i].boh%></option>
+        <%
+        }
+        %>
+</select>
+
+if in jsp 
+<%
+  if(true){
+    %>
+  <button id="button" onCLick="func()">Premi</button>
+  <%
+  }
+%>
+
+
+//Leggere da file
+private static final String path="/path/to/file";
+try {
+     buff = new BufferedReader(new FileReader(path));
+     while ((line = (buff.readLine())) != null) {
+     String splitter[]=line.split(" ");
+     Integer id=Integer.parseInt(splitter[0]);
+     }
+     } catch (IOException e) {
+            e.printStackTrace();
+     }
+
+
+JAVASCRIPT
+
+//testo da una select (menù a tendina)
+var card = myGetElementById("alb");
+    if (card.selectedIndex == 0) {
+        alert('select one answer');
+    }
+    else {
+        var selectedText = card.options[card.selectedIndex].text;
+    }
+    
+    
+//testo da una checkbox (tipo lista della spesa)
+var cboxes = document.getElementsByName('lettere');
+var len = cboxes.length;
+var lettere = "";
+for (var i = 0; i < len; i++) {
+//alert(i + (cboxes[i].checked ? ' checked ' : ' unchecked ') + cboxes[i].value);
+if (cboxes[i].checked) {
+         lettere += (cboxes[i].value + " ");
+        }
+   }
+
+
+
+//refersh dopo x secondi
+<body onload="setTimeout(tictac, 15000)">
+
+function tictac(){
+    alert('Sessione terminata!');
+    window.location.replace("http://localhost:8080/08_TecWeb/");
+}
+
+//redirect simulando un click
+window.location.href = "http://localhost:8080/08_TecWeb/";
+
+//Formare un oggetto JSON
+var request=new Object();
+
+//Inserire il campo data dell' oggetto
+request.data=data;
+
+//Riprendere i valori su java
+String oggetto = req.getParameter("parametro");
+Prenotazione p = g.fromJson(oggetto, Prenotazione.class);
+
+//Check se stringa contiene numeri
+function hasNumber(myString) {
+    return /\d/.test(myString);
+}
+if (hasNumber(parola)) {
+alert("Non può contenere caratteri non alfabetici!");
+return;
+}
+
+//Check solo lettere minuscole
+if (value.match(/^[a-z]*$/)) {
+    // matches
+} else {
+    // doesn't match
+}
+
+//Check solo lettere e numeri
+if (/^[A-Za-z0-9]+$/.test(string)) 
+
+//send con post XHR
+theXhr.open("post", uri, true);
+theXhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+theXhr.setRequestHeader("connection", "close");
+theXhr.send("p1=json&p2="+JSON.stringify(request));
+
+//send con get XHR
+theXhr.open("get", uri, true);
+theXhr.setRequestHeader("connection", "close");
+theXhr.send(null);
+
+WEB.XML
+
+//Settare parametro di init e chiamarlo nella servlet
+<servlet>
+     <display-name>HelloWorldServlet</display-name>
+     <servlet-name>HelloWorldServlet</servlet-name>
+     <init-param>
+         <param-name>Greetings</param-name>
+         <param-value>Hello</param-value>
+     </init-param>
+</servlet>
+
+//Nella servlet si chiama
+pageContext.getServletContext().getInitParameter("k")

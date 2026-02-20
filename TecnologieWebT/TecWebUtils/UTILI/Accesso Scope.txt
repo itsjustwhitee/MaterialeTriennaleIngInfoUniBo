@@ -1,0 +1,8 @@
+//js
+	//- session
+	sessionStorage
+	//- application
+	usare una request o response
+
+//WebSocket Java
+	HttpSession httpSession = (HttpSession) session.getUserProperties().get("javax.websocket.endpoint");

@@ -1,0 +1,9 @@
+<form name="loginForm" id="loginForm" method="post" action="Login?act=login"> //oppure onsubmit="jsfunction()"
+//Nota: se si vuole evitare il refresh utile fare onsubmit="return jsfunction()"
+
+//TIPI DI INPUT:
+
+//	-Radio
+	<input type="radio" name="service" value="rinnovo" id="rinnovo" checked required/>
+	<label for="rinnovo">Rinnovo carta d'identitá</label>
+	//nei radio name deve essere lo stesso per tutto il gruppo. required va specificato in un solo elemento del gruppo (tipicamente il primo)

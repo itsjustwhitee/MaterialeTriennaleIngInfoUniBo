@@ -1,0 +1,40 @@
+.App {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.Compilazione,
+.Visualizzazione,
+.Estrazione {
+  text-align: center;
+}
+
+input {
+  width: 40px;
+  margin: 5px;
+}
+
+
+#giallo {
+  background-color: yellow;
+  /* Puoi cambiare i colori in base alla tua preferenza */
+}
+
+#verde {
+  background-color: green;
+  ;
+}
+
+#blu {
+  background-color: blue;
+
+}
+
+#rosso {
+  background-color: red;
+}
+
+p {
+  font-weight: bold;
+}

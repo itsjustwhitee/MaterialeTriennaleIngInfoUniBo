@@ -1,0 +1,132 @@
+html *{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;    
+}
+
+body{
+    height:100%;
+    margin:5px;
+    padding:1%;
+}
+
+
+.bottoni{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding:6px;
+    margin-left:6px;
+    margin-right: 6px;
+    background-color:#4C61FC;
+    color: white;
+    height: 40px;
+    width: 90px;
+    border-width: 0px;
+    border-radius: 8px;
+    font-size: medium;
+    transition: opacity 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+}
+
+.bottoni:hover{
+    background: #2036de;
+    box-shadow: 0px 6px 5px rgba(0, 0, 0, 0.15);
+}
+
+.textfield{
+    height: 50px;
+    font-size: 20px;
+    border: none;
+    border-width: 0px;
+    outline: transparent;
+    background: white no-repeat;
+    transition: 100ms all linear 0s;
+    background-image: linear-gradient(to bottom, rgba(77, 97, 252, 0.63) 0%, #4d61fc 90%), linear-gradient(to bottom, #e1e1e1, #e1e1e1);
+    background-size: 0 2px, 100% 1px;
+    background-position: 50% 100%, 50% 100%;
+    transition: background-size 0.3s cubic-bezier(0.64, 0.09, 0.08, 1);
+}   
+
+.textfield:focus{
+    background-size: 100% 2px, 100% 1px;
+}
+
+.check-opt, .radio-opt{
+    font-size: 18px;
+}
+
+/*
+    l'id file-upload da assegnare alla label quando si vuole utilizzare un input type="file" insieme alla classe drop file
+    !!!!!!COPIARE HTML SEGUENTE PER LO STILE!!!!!!
+    <label for="file-upload" class="bottoni drop-file">
+            Carica file
+    </label>
+    <input type="file" name="attach" id="file-upload">  
+*/
+
+#file-upload{
+    display: none;
+}
+
+.drop-file{
+    padding:11px;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+textarea:focus::placeholder, input:focus::placeholder{
+    color:transparent;
+}  
+
+textarea{
+    font-size:20px;
+    border-width: 4px;
+    border-radius: 8px;
+    padding: 20px;
+    border-color: #4c61fcbe;
+    border-style: outset;
+}
+
+fieldset{
+    border-width: 4px;
+    border-radius: 8px;
+    padding: 20px;
+    border-color: #4C61FC;  
+    border-style: outset;  
+}
+
+legend{
+    font-size: 20px;
+    font-weight: 400;
+}
+
+select{
+    font-size: 18px;
+    width:150px;
+}
+
+div{
+    padding: 15px;
+}
+
+table{
+    border-radius: 4px;
+    border-color: #4c61fcbe;
+    width:600px;
+    height: 200px;
+}
+
+th, td{
+    margin:6px;
+    border-radius: 4px;
+    border-color: #4c61fcbe;
+    vertical-align: middle;
+    text-align: center;
+}
+
+th{
+    font-size: 1.5em;
+}

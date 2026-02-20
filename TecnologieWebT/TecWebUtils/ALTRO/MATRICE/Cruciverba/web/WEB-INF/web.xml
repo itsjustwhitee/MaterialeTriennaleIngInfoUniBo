@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+ <!-- 1) General -->
+ <!-- Name the application -->
+ <display-name>Template</display-name>
+ <description> ServeltTemplates </description>
+ <!-- 2) Servlets -->
+<servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>servlets.LoginServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+ </servlet>
+ <servlet-mapping>
+     <servlet-name>LoginServlet</servlet-name>
+     <url-pattern>/login</url-pattern>
+ </servlet-mapping>
+ 
+ <servlet>
+		<servlet-name>SignUpServlet</servlet-name>
+		<servlet-class>servlets.SignUpServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SignUpServlet</servlet-name>
+		<url-pattern>/SignUp</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>CruciverbaServlet</servlet-name>
+		<servlet-class>servlets.CruciverbaServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CruciverbaServlet</servlet-name>
+		<url-pattern>/CruciverbaServlet</url-pattern>
+	</servlet-mapping>
+ <!-- 3) Welcome Files -->
+ <!-- Define, in order of preference, which file to show
+when no filename is defined in the path -->
+ <welcome-file-list>
+ 	<welcome-file>loginPage.jsp</welcome-file>
+ </welcome-file-list>
+
+ <!-- 4) Error Handler -->
+ <!-- Define an error handler for 404 pages -->
+ <error-page>
+ <error-code>404</error-code>
+ <location>/errors/notfound.html</location>
+ </error-page>
+ <!-- Define an handler for java.lang.Exception -->
+ <error-page>
+ <exception-type>
+java.lang.Exception
+ </exception-type>
+ <location>/errors/exception.html</location>
+ </error-page>
+</web-app>

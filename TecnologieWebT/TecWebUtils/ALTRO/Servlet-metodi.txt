@@ -1,0 +1,75 @@
+
+
+public class name extends HttpServlet{
+	public void doGet (HttpServletRequest request,HttpServletResponse response)throws IOException,ServletException{
+	
+	}
+	
+	public void doPost (HttpServletRequest request,HttpServletResponse response)throws IOException,ServletException{
+	
+	}
+}
+
+per ottenere un parametro:
+
+da request -> es. String name = request.getParameter("name"); // return string;
+come scrivere nell'output:
+PrintWriter out = response.getWriter(); // scrivere in html se si pensa ad una pagina o solo un testo se chiamata ajax, oppure in xml,json...
+come salvare un cookie: // memorizzazione lato client(browser);
+- leggerlo : Cookie [] cookie = request.getCookies();
+es. String name = null;
+
+for (Cookie c : cookies) {
+	if(c.getName().equals("name"))
+		name = c.getValue();
+}
+
+- salvarlo:
+Cookie cookie = new Cookie("name",name); // nome parametro e valore in Stringa;
+cookie.setMaxAge(30000) //es
+response.addCookie(cookie); //response non request !!!!
+
+come salvare su sessione // lato server
+
+per leggerlo:
+String name = (String) request.getSession().getAttribute("name"); // null atrilmenti
+per salvarlo:
+request.getSession().setAttribute("name",name);
+
+la servlet una volta creata va aggiunta al web.xml
+
+nel web xml aggiungere:
+
+<servlet> 
+        <!-- Identification --> 
+        <servlet-name>OwOw</servlet-name> //nome da dare alla servlet
+        <servlet-class>it.unibo.tw.web.SayMyNameCookies</servlet-class> // pattern parte da src poi serguire path 
+        <init-param> // volendo si puo aggiungere questo per inizializzare delle variabili all'interno della servlet, 
+        	<param-name>homeURL</param-name> // accedibile tramite il metodo init:
+        	/*
+        		@Override
+			public void init(ServletConfig config) throws ServletException {
+				super.init(config);
+				this.homeURL = config.getInitParameter("homeURL");
+			}
+        	*/
+        	<param-value>/pages/home.jsp</param-value>
+        </init-param>
+</servlet> 
+<!-- Map some URL's to the  servlet --> 
+<servlet-mapping> 
+        <servlet-name>OwOw</servlet-name>  // stesso nome dato sopra
+        <url-pattern>/owow</url-pattern>  // url che poi avrà nel domain del server
+</servlet-mapping> 
+
+InsiemeDiArticoli vendite = (InsiemeDiArticoli)this.getServletContext().getAttribute("merceVenduta");
+//se es. la jsp dichiara delle variabili di sessione o di applicazione le posso recuperare così
+
+request.getContextPath() // restituisce l'host del server non la pagina però es. http:8080/02_Tec_web quindi la pagina nel caso va aggiunta
+
+se voglio che una pagina che sia servlet o jsp faccia solo dei calcoli, modifichi la request e poi la inoltri ad 
+un'altra pagina es. servlet inoltra a jsp uso il dispatcher;
+
+// passo il controllo alla JSP
+		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/statistiche.jsp");
+		dispatcher.forward(req, resp);

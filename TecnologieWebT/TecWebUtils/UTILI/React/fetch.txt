@@ -1,0 +1,15 @@
+//invio di json (e ricezione json)
+fetch('/CounterServlet', {
+            method:'POST',
+            body: JSON.stringify({files: fileNames}),
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(response => {
+            console.log.response;
+            return response.json;
+        })
+        .then(results => {
+            showResults(results, 'servletResults');
+        })
+        .catch(error => {console.error('Errore: ', error)});
+

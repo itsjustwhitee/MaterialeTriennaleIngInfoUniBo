@@ -1,0 +1,70 @@
+--------------Controllo-caratteri---------------------------------------------------------
+if(c>=65 && c<= 90) //caratteri maiuscoli
+if(c>=97 && c<= 122) //caratteri minuscoli
+if(c>=48 && c<= 57) //caratteri numerici (compreso lo 0, che è il numero 48)
+------------------------------------------------------------------------------------------
+
+
+
+-----------Forzare l'inserimento di soli caratteri numerici in html (solo html 5)---------
+Tavolo: <input type="number" name="numero"/>
+------------------------------------------------------------------------------------------
+
+
+
+-----------Ottenere-un-attributo-di-un-elemento-in-javascript-----------------------------
+//HTML
+<input type="button" id="single" value="single" onclick="myFunction(this)">
+//
+
+/JS
+function myFunction(caller)
+{
+	var mode = caller.id; 
+}
+//
+------------------------------------------------------------------------------------------
+
+
+
+-----------Inviare-un-parametro-a-una-servlet-(JavaScript)--------------------------------
+//JS
+numberOfPages = 3;
+try {
+	theXhr.open("get", "ConcurrentDownloadServlet?value="+numberOfPages, true);
+	
+}
+//
+
+//Servlet
+int value= Integer.parseInt(request.getParameter("value"));
+//
+-------------------------------------------------------------------------------------------
+
+
+
+-----------Inviare-un-parametro-a-un'altra-pagina-(JavaScript)-----------------------------
+//JS Pagina che invia
+const count = document.getElementById('fileCount').value;
+window.location.href = `input.html?count=${count}`;
+//
+
+//JS Pagina che riceve
+const urlCount = new URLSearchParams(window.location.search).get('count');
+//
+-------------------------------------------------------------------------------------------
+
+
+-----------Inviare-un-testo-in-XML-(Servlet)-----------------------------------------------
+//Servlet Pagina che invia
+response.setContentType("application/xml");
+PrintWriter out = response.getWriter();
+out.println("<result>");
+out.println("<modifiedText>" + modifiedText + "</modifiedText>");
+out.println("<length>" + length + "</length>");
+out.println("</result>");
+//
+
+-------------------------------------------------------------------------------------------
+
+

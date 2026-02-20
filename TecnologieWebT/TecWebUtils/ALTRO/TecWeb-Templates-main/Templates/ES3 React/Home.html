@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+<html>
+        <head>
+                 <meta charset="UTF-8" />
+                 <title>Esercizio 3</title>
+				 <script src="./libs/react.js"></script>
+				 <script src="./libs/react_dom.js"></script>
+				 <script src="./libs/babel.js"></script>            
+
+	</head>
+
+        <body>
+		 <!-- Placeholder -->
+		 <div id="root"></div>
+		 
+		 <!-- React components -->
+    		 <script src="./react-components/Pista.js" type="text/babel"></script>
+			 <script src="./react-components/Classifica.js" type="text/babel"></script>
+			 <script src="./react-components/App.js" type="text/babel"></script>
+    		 <!--  <script src="index.js" type="text/babel"></script>-->
+    		 
+			 <script type="text/babel">
+				ReactDOM.render(
+					<React.StrictMode>
+						<App/>
+					</React.StrictMode>,
+					document.getElementById('root')
+				);
+			</script>
+	</body>
+</html>

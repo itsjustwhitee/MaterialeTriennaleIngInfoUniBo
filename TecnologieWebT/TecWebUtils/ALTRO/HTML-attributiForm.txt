@@ -1,0 +1,21 @@
+<form method="get" action="/action_page.php" target="_blank">
+
+method: get o post se omesso get
+
+action=dove vanno i dati dell form, se omesso vanno alla pagina corrente;
+
+target:The target attribute specifies where to display the response that is received after submitting the form.
+Value	Description
+_blank	The response is displayed in a new window or tab
+_self	The response is displayed in the current window
+_parent	The response is displayed in the parent frame
+_top	The response is displayed in the full body of the window
+framename	The response is displayed in a named iframe
+The default value is _self which means that the response will open in the current window.
+
+The autocomplete attribute specifies whether a form should have autocomplete on or off.
+When autocomplete is on, the browser automatically complete values based on values that the user has entered before.
+
+name specifica il nome del form
+
+

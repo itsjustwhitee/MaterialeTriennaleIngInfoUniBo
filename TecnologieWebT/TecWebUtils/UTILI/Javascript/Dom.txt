@@ -1,0 +1,2 @@
+//query su un tipo di input e checked
+const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');

@@ -1,0 +1,70 @@
+-1) Direttive <%@ %> o <jsp:directive.name attribute />
+– proprietà generali della pagina, importazione di nomi di classe, uso della sessione, ecc...
+– processate a tempo di compilazione della JSP in Servlet
+
+Oggetti 'embedded' o 'built-in': risorse immediatamente utilizzabili nel
+codice della pagina JSP senza dover creare istanze
+– page: proprietà e caratteristiche della vista corrente
+– out: flusso di output su cui riversare l'HTML
+– request: richiesta HTTP ricevuta, suoi attributi e parametri
+– response: risposta HTTP da produrre e sue proprietà
+– session: stato dell'utente mantenuto lato server associato alla richiesta corrente
+
+es.
+<!-- pagina per la gestione di errori -->
+<%@ page errorPage="../errors/failure.jsp"%>
+
+<!-- import di classi Java -->
+<%@ page import="it.unibo.tw.es1.beans.InsiemeDiArticoli"%>
+<%@ page import="it.unibo.tw.es1.beans.Articolo"%>
+<%@ page import="java.util.*"%>
+
+-2) Espressioni <%= ... %> o <jsp:expression> java expression </jsp:expression>
+– trasposizione del risultato della valutazione di espressioni Java direttamente nel codice HTML
+prodotto dalla pagina
+– n.b.: permettono la valutazione di espressioni (che restituiscono un risultato), non di istruzioni
+(quindi niente ';' finale)
+
+da aggiungere se in html si mettono valori ricavati da istruzioni java 
+es.
+
+nella parte java ho definito String parola;
+
+<p> <%= parola %> </p>
+
+-3) Scriptlet <% ... %> o <jsp:scriptlet> java instructions </jsp:scriptlet>
+
+– codice Java la cui valutazione procede insieme all'elaborazione del contenuto della pagina JSP al
+fine di produrre l'HTML finale...
+– ...ma la cui compilazione avviene ben prima di questo momento (in caso di fallimento, non è
+possibile mostrare alcun risultato parziale)
+
+normale codice java
+
+-4)Dichiarazioni <%! ... %> o <jsp:declaration> java definitions </jsp:declaration>
+– definizione di variabili e metodi che potranno poi essere usati all'interno di scriptlet ed espressioni
+
+Azioni <jsp:nomeAzione attributiAzione … />
+permettono di effettuare operazioni a tempo di esecuzione della richiesta
+– useBean: istanzia un oggetto conforme alle convenzioni JavaBean e lo rende disponibile
+al codice che segue tramite un preciso identificativo e un preciso scope di validità
+– getProperty: restituisce in forma di oggetto la property indicata
+– setProperty: imposta il valore della property indicata
+– include: include a request-time (non a compile-time, come le direttive) il contenuto di un
+file nel sorgente della JSP valutato dal server
+– forward: cede la gestione della richiesta a un’altra risorsa
+– plugin: genera il contenuto necessario per scaricare un plug-in Java
+
+<jsp:useBean id="merceSelezionata" class="it.unibo.tw.es1.beans.InsiemeDiArticoli" scope="session" /> // scope session vale per tutta la 
+//sessione lato client; si puo prendere anche dalla servlet il server condivide le risorse fra servlet e jsp
+<jsp:useBean id="merceVenduta" class="it.unibo.tw.es1.beans.InsiemeDiArticoli" scope="application" /> //scope application vale per tutte le sessioni che si instaurano con il server, per tutti;
+
+una jsp ha normalmente le variabili request e response già di default utilizzabili come nella Servlet
+
+se voglio che una pagina che sia servlet o jsp faccia solo dei calcoli, modifichi la request e poi la inoltri ad 
+un'altra pagina es. servlet inoltra a jsp uso il dispatcher;
+1- lato server, eventuale codice html non viene nemmeno visualizzato
+<jsp:forward page="stillAServlet" /> // forward ad una servlet, fondamentale non scrivere nulla nella response
+2 - lato client con <meta http-equivalent="Refresh" nell'head, esempio:
+<meta http-equiv="Refresh" content= "0; URL=stillaServlet">
+

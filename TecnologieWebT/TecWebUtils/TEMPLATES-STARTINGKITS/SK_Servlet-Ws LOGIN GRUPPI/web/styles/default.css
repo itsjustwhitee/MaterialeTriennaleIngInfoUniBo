@@ -1,0 +1,320 @@
+/* Stile generale per la pagina */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ddeff2;
+    color: #333;
+    margin: 0;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.mainContainer {
+    background-color: #2b3d42;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    width: 600px;
+    max-width: 90%;
+    color: #c6d6db;
+}
+
+.container {
+    justify-content: space-between;
+    background-color: #292f2e;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.233);
+    width: 600px;
+    max-width: 90%;
+}
+
+h2{
+    color: #69c4d8;
+}
+
+h3, h4, h5, g6, h7{
+    color: #15373b;
+
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: #1e607e;  /* Colore moderno per radio/checkbox */
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+textarea {
+    width: 100%;  
+    padding: 8px;  
+    border: 1px solid #4b5c61;  
+    border-radius: 5px;  
+    font-size: 14px;  
+    background-color: #e1f1f2;  
+    color: #333;
+    margin-bottom: 15px;
+}
+
+input[type="submit"] {
+    background-color: #1e607e;
+    color: #c6d6db;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+input[type="submit"]:hover {
+    background-color: #2a8f9b;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+/*
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #4b5c61;
+}
+
+th {
+    background-color: #1e607e;
+    color: #c6d6db;
+}
+
+td {
+    background-color: #e1f1f2;
+}*/
+
+.err {
+    color: #ff6363;  
+    font-size: 12px;  
+    font-style: italic;  
+    margin-top: 10px;  
+    display: block;  
+}
+
+.separator {
+    width: 100%;
+    height: 1px;
+    background-color: #4b5c61;
+    margin: 20px 0;
+}
+
+/* Stile generale per i checkbox e i radio button */
+input[type="checkbox"], 
+input[type="radio"] {
+    display: none; /* Nasconde gli input standard */
+}
+
+input[type="checkbox"] + label,
+input[type="radio"] + label {
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #c6d6db;
+    line-height: 20px;
+    display: inline-block;
+    transition: color 0.2s ease;
+}
+
+/* Stile per la casella del checkbox */
+input[type="checkbox"] + label::before,
+input[type="radio"] + label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #69d8c9; /* Colore bordo */
+    border-radius: 4px; /* Checkbox squadrato */
+    background-color: #537771; /* Sfondo */
+    transition: all 0.3s ease;
+}
+
+/* Stile per il radio button */
+input[type="radio"] + label::before {
+    border-radius: 50%; /* Radio button arrotondato */
+}
+
+/* Effetto hover */
+input[type="checkbox"] + label:hover::before,
+input[type="radio"] + label:hover::before {
+    border-color: #1e7b7e;
+}
+
+/* Stile quando selezionato */
+input[type="checkbox"]:checked + label::before {
+    background-color: #537771;
+    border-color: #69c4d8;
+    content: '✓'; /* Spunta */
+    font-size: 14px;
+    color: #3fa5a0;
+    text-align: center;
+    line-height: 20px;
+}
+
+input[type="radio"]:checked + label::before {
+    background-color: #69c4d8;
+    border-color: #69d1d8;
+}
+
+input[type="checkbox"]:checked + label,
+input[type="radio"]:checked + label {
+    color: #97e6db;
+}
+
+.err
+{
+    color: rgb(255, 126, 126); /* Colore rosso per indicare errore */
+    font-size: 12px; /* Dimensione del testo ridotta */
+    font-style: oblique; /* Testo in corsivo per evidenziarlo */
+    margin-top: 10px; /* Distanza dal campo di input */
+    display: block; /* Assicura che si comporti come un elemento a blocco */
+}
+
+
+a img {
+	border: 0px solid;
+    max-width: 30px;
+    max-height: 30px;
+}
+
+.left {
+    float: left; /* Posiziona l'elemento a sinistra */
+    margin-right: 10px; /* Aggiunge uno spazio a destra (opzionale) */
+}
+
+.right {
+    float: right; /* Posiziona l'elemento a destra */
+    margin-left: 10px; /* Aggiunge uno spazio a sinistra (opzionale) */
+}
+
+.clearfix::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+input[type="submit"], button:hover {
+    background-color: #006970;
+    color: #c6ffff;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+input[type="submit"]:hover, button:hover {
+    background-color: #009ba7;
+}
+
+#logout
+{
+	float: right;
+	background-color: #fc4343; 
+    color: #ffeded;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 80px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.233);
+}
+
+#logout:hover {
+    background-color: #ff7c7c;
+}
+
+#login
+{
+	float: right;
+	background-color: #009ba7; 
+    color: #ffeded;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 80px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.233);
+}
+
+#login:hover {
+    background-color: #67cdd4;
+}
+
+div.separator {
+    width: 1px;
+    background-color: #ffffffa1;
+    height: auto;
+}
+
+h1 {
+	font-size: 12pt;
+	padding: 10px;
+	border-bottom: 1px solid rgb(88, 117, 115);
+	color: #8adbe0;
+	text-align: center;
+	background: #292f2e;
+	border-radius: 4px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.233);
+}
+
+button
+{
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.onDark
+{
+    color:#c7dfdd;
+}
+
+.onLight
+{
+    color:#162927;
+}
+
+button:disabled {
+    border: none; /* Rimuove il bordo */
+    outline: none; /* Rimuove l'outline */
+    /*box-shadow: none; /* Rimuove eventuale ombreggiatura */
+
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 5px;
+
+    cursor: not-allowed; /* Indica che il bottone non è cliccabile */
+
+    padding: 0; /* Rimuove il padding extra */
+    margin: 0; /* Elimina margini esterni */
+    line-height: 1; /* Allinea il testo correttamente */
+    vertical-align: middle;
+
+    opacity: 1;
+}

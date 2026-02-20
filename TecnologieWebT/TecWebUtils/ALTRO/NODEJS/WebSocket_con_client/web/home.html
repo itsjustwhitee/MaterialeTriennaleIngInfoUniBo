@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="scripts/chat.js"></script>
+    <script src="scripts/utils.js"></script>
+    <title>WebSocket Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+        #messageInput { width: 80%; }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="groupId" placeholder="Enter Group ID" />
+    <button id="joinButton" onclick="join()">Join Group</button>
+    <br>
+    <input type="text" id="messageInput" placeholder="Type a message..." />
+    <button id="sendButton" onclick="send()">Send</button>
+
+</body>
+</html>

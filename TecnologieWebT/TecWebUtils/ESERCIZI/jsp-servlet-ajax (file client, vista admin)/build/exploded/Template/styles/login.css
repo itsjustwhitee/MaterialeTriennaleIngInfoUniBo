@@ -1,0 +1,97 @@
+/* Stile generale per la pagina */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ceebe8;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#loginGUI {
+    display: flex;
+    justify-content: space-between;
+    background-color: #292f2e;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.233);
+    width: 600px;
+    max-width: 90%;
+}
+
+.left, .right {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+table {
+    width: 100%;
+    border-spacing: 1px;
+    padding-bottom: 5px;
+}
+
+td {
+    padding: 5px 0;
+    font-size: 14px;
+}
+
+h2 {
+    color: #71c6cc;
+}
+
+div.separator {
+    width: 1px;
+    background-color: #ffffffa1;
+    height: auto;
+}
+
+#loginGUI {
+    display: flex;
+    justify-content: space-between;
+    background-color: #292f2e;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.233);
+    width: 600px;
+    max-width: 90%;
+}
+
+input[type="submit"], #login {
+    background-color: #006970;
+    color: #c6ffff;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+input[type="submit"]:hover, #login:hover {
+    background-color: #009ba7;
+}
+
+input[type="text"], 
+input[type="password"], 
+input[type="number"] {
+    width: 100%;  /* Larghezza completa */
+    padding: 8px;  /* Margine interno */
+    border: 1px solid #ccc;  /* Bordo */
+    border-radius: 4px;  /* Angoli arrotondati */
+    font-size: 14px;  /* Dimensione del font */
+    background-color: #ddfaf7;  /* Colore di sfondo */
+}
+
+.err
+{
+    color: rgb(255, 126, 126); /* Colore rosso per indicare errore */
+    font-size: 12px; /* Dimensione del testo ridotta */
+    font-style: oblique; /* Testo in corsivo per evidenziarlo */
+    margin-top: 10px; /* Distanza dal campo di input */
+    display: block; /* Assicura che si comporti come un elemento a blocco */
+}

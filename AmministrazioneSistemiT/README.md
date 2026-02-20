@@ -1,0 +1,1 @@
+✅ Tip per l’esame: dato che il tempo é poco, ma l’esame é lungo e le cose da fare sono ancora di più, consiglio di segnare ogni vincolo/configurazione/azione su un file toDo e depennare via via (per evitare dimenticanze e rimanere lucidi).

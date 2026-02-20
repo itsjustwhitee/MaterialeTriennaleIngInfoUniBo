@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Home</title>
+	  <link rel="StyleSheet" href="styles/default.css" type="text/css" media="all" />
+		<script src="./react-libs/react.development.js"></script>
+		<script src="./react-libs/react-dom.development.js"></script>
+		<script src="./react-libs/babel.min.js"></script>
+		
+		<script src="./react-components/Lake.js" type="text/babel"></script>
+		<script src="./react-components/Scoreboard.js" type="text/babel"></script>
+    	<script src="./react-components/App.js" type="text/babel"></script> 
+   </head>
+
+    <body>
+   
+		<!-- React components -->
+		<div id="root">
+		
+		<script type="text/babel">
+			ReactDOM.render(
+				 <React.StrictMode>
+				   <App/>
+				 </React.StrictMode>,
+				 document.getElementById('root')
+			);
+		</script>
+		</div>
+    </body>
+</html>

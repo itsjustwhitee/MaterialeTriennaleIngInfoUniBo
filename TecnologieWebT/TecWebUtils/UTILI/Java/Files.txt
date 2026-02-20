@@ -1,0 +1,20 @@
+import "java.io.File";
+File directory = new File(application.getInitParameter("directory"));
+	
+// Controlla se è una directory valida
+if (directory.isDirectory()) {
+	// Ottieni la lista dei file
+	File[] files = directory.listFiles();
+
+	if (files != null) {
+		// Itera attraverso i file
+		for (File file : files) {
+		System.out.println(file.getName());
+	}
+	} else {
+		System.out.println("La directory è vuota o non è accessibile.");
+	}
+	} else {
+		System.out.println("Il percorso specificato non è una directory.");
+	}
+}

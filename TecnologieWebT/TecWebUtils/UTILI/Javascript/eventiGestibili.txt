@@ -1,0 +1,97 @@
+
+
+- onload si applica a <body>,<img> 
+"sul caricamento..."
+
+l'evento scatta quanto l'oggetto risulta completamente
+caricato.
+esempio:
+<body onload="alert('ciao');">
+<img src="miaimmagine.jpg" onload="alert('ciao');">
+
+-onunload si applica a <body>
+applicato al <body> si verifica quando il browser "scarica"
+il documento. cioè alla chiusura del documento.
+
+esempio:
+<body onunload="alert('ciao');">
+
+-onmouseover si applica a <a>,<area>,<input> (submit, reset,button, checkbox, radio, option)
+
+"al passaggio del mouse".
+si verifica quando l'utente passa il mouse su un'area
+sensibile (link o mappa).
+con ie 5+ questo evento può essere associato anche a
+td, tr, etc.
+
+esempio:
+<a onmouseover="alert('ciao');" href="pagina.html">
+
+-onmouseout si applica a <a>,<area>,<input>
+
+"quando il mouse esce".
+si verifica quando l'utente con il mouse esce al di fuori
+dell'area sensibile (link o mappa).
+con ie 5+ questo evento può essere associato anche a
+td, tr, etc.
+
+esempio:
+<a onmouseout="alert('ciao');" href="pagina.html">
+
+-onclick si applica a <a>,<area>,<input>,<div>
+
+"sul click del mouse..."
+avviene quando l'utente clicca sull'elemento
+
+esempio:
+<a onclick="alert('ciao');"
+href="pagina.html">
+
+-onkeypress si applica a <a> <area> <input> <div>
+ 
+ si verifica quando si è all'interno dell'elemento e
+viene premuto un tasto della tastiera.
+
+esempio:
+<textarea onkeypress="alert('ciao');">
+</textarea>
+
+-onchange si applica a <input type="select">
+
+si verifica quando l'elemento subisce un cambiamento a seguito
+dell'azione dell'utente.
+
+esempio:
+<select onchange="alert('ciao');">
+
+ <option>
+  uno
+ </option>
+ <option>
+  due
+ </option>
+ <option>
+  tre
+ </option>
+
+</select>
+
+-onsubmit si applica a <form> 
+
+quando viene eseguita l'invio del form (tramite bottone o
+tramite invio da tastiera).
+esempio:
+<form name="mioform" action="http://...." onsubmit="alert('ciao');">
+
+-onfocus si applica a <a> <input> <body>
+"quando l'elemento ha il focus..."
+entra in azione non appena l'elemento è attivo.
+esempio:
+<body onfocus="alert('ciao');">
+(provate questo esempio con altre finestre del browser aperte, e provate a passare dalla vostra pagina alle altre finestre e viceversa)
+
+-onblur si applica a <a> <input> <body>
+"quando l'elemento non è più attivo..."
+viene richiamato quando l'elemento smette di essere attivo.
+esempio:
+<body onblur="alert('ciao');">

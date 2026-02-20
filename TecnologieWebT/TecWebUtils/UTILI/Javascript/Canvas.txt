@@ -1,0 +1,63 @@
+<canvas id="myCanvas" width="500" height="400" style="border:1px solid #000;"></canvas>
+//Se non specifichi larghezza e altezza, il canvas avrà dimensioni predefinite di 300x150 pixel.
+
+Per disegnare nel canvas, devi ottenere un contesto di rendering, che può essere 2D o 3D (WebGL).
+//js:
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d"); // Ottieni il contesto 2D
+
+Per catturare eventi come mousedown, mousemove o mouseup per rendere il canvas interattivo.
+<script>
+  const canvas = document.getElementById("drawingCanvas");
+  const ctx = canvas.getContext("2d");
+  let isDrawing = false;
+
+  canvas.addEventListener("mousedown", (e) => {
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY); // Inizia a tracciare
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (isDrawing) {
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke(); // Disegna la linea
+    }
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    isDrawing = false; // Fine del disegno
+  });
+
+  canvas.addEventListener("mouseout", () => {
+    isDrawing = false; // Ferma il disegno quando il mouse esce dal canvas
+  });
+</script>
+
+salvare la canvas
+function saveCanvas() {
+  const image = canvas.toDataURL("image/png"); // Converte la canvas in una stringa base64
+  console.log(image); // Stringa base64 che rappresenta l'immagine
+}
+// Invia al server
+  fetch("/save-canvas", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ image })
+  }).then(response => {
+    if (response.ok) {
+      console.log("Canvas salvata!");
+    }
+  });
+
+
+Caricare e visualizzare canvas salvata
+function loadCanvas() {
+  const img = new Image();
+  img.src = "/path-to-saved-image.png"; // Percorso al file sul server
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Disegna l'immagine nella canvas
+  };
+}
